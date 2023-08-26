@@ -1,0 +1,20 @@
+{
+  "name": "to-health-with-you",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "build-zip": "npm run build && bestzip to-health-with-you.zip dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "bestzip": "^2.2.1"
+  },
+  "dependencies": {
+    "kontra": "^9.0.0"
+  }
+}

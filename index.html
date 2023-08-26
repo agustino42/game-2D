@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To Health With You!</title>
+  </head>
+  <style>
+    body {
+        background-color: #000;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: auto;
+        min-width: 100%;
+    }
+    .container {
+        position: relative;
+        width: 2048px;
+        height: 1024px;
+        margin: auto;
+    }
+    @media (max-width: 1980px) {
+        .container {
+            max-width: 640px;
+            max-height: 480px;
+        }
+    }
+    @media (max-width: 768px) {
+        .container {
+            max-width: 320px;
+            max-height: 240px;
+        }
+    }
+  </style>
+  <body>
+    <div class="container">
+      <canvas id="kontra" style="z-index: 2;" width="320" height="240"></canvas>
+      <canvas id="text" style="z-index: 1;" width="640" height="480"></canvas>
+      <canvas id="background" style="z-index: 0;" width="320" height="240"></canvas>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
