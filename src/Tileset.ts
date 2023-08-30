@@ -14,15 +14,41 @@ export default class Tileset {
     }
 
     // Method to draw a specific tile to a specific position
-    drawTile(ctx: OffscreenCanvasRenderingContext2D | null, tileName: keyof TerrainMap, x: number, y: number) {
+    drawTile(ctx: OffscreenCanvasRenderingContext2D | null, tileName: keyof TerrainMap, x: number, y: number, rotation: number = 0) {
         if(!ctx) return console.error('No context provided.');
         const tile = this.tiles[tileName];
         if (tile) {
-            const sx = tile.x * this.actualTileSize;
-            const sy = tile.y * this.actualTileSize;
-            ctx.drawImage(this.tileSheet, sx, sy, this.actualTileSize, this.actualTileSize, x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+            if(tile.background) {
+                ctx.fillStyle = tile.background;
+                ctx.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+            }
+            if(tile.x !== undefined && tile.y !== undefined){
+                const sx = tile.x * this.tileSize;
+                const sy = tile.y * this.tileSize;
+                if(rotation !== 0) this.drawRotatedTile(ctx, {x: tile.x, y: tile.y}, x, y, rotation);
+                else ctx.drawImage(this.tileSheet, sx, sy, this.tileSize, this.tileSize, x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+            }
         } else {
             console.error(`Tile with name ${tileName} does not exist.`);
         }
     }
+
+    drawRotatedTile(ctx: OffscreenCanvasRenderingContext2D | null, tile: {x: number, y: number}, x: number, y: number, rotation: number = 0) {
+        if(!ctx) return console.error('No context provided.');
+        const destX = x * this.actualTileSize;
+        const destY = y * this.actualTileSize;
+        const srcX = tile.x * this.actualTileSize;
+        const srcY = tile.y * this.actualTileSize;
+
+        ctx.save();  // Sparar nuvarande canvas-state
+        ctx.translate(destX + this.actualTileSize / 2, destY + this.actualTileSize / 2);  // Flyttar origin till tilens mittpunkt
+        ctx.rotate((rotation * Math.PI) / 180);  // Roterar ctxen 90 grader
+        ctx.drawImage(
+        this.tileSheet,
+        srcX, srcY, this.actualTileSize, this.actualTileSize,  // Käll-koordinater och dimensioner
+        -this.actualTileSize / 2, -this.actualTileSize / 2, this.actualTileSize, this.actualTileSize  // Destination-koordinater och dimensioner
+        );
+        ctx.restore();  // Återställer canvas-state
+    }
+
 }
