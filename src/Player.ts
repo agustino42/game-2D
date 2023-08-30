@@ -1,18 +1,18 @@
-import { Sprite} from 'kontra'
+import { Sprite, SpriteSheet} from 'kontra'
 import { isColliding } from './InputHandler';
 
-export default function getPlayer(gx: number, gy: number, canvas: HTMLCanvasElement): Sprite {
+export default function getPlayer(gx: number, gy: number, canvas: HTMLCanvasElement, spritesheet: SpriteSheet): Sprite {
     return Sprite({
-        x: 0,
-        y: 0,
-        gx: gx,
-        gy: gy,
-        color: 'red',
-        radius: 6,
-        visualRadius: 8,
-        dx: 0,
-        dy: 0,
-        speed: 40,
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        gx: gx - 4,
+        gy: gy - 5,
+        animations: spritesheet.animations,
+        radius: 7,
+        mx: 0,
+        my: 0,
+        anchor: {x: 0.5, y: 0.5},
+        speed: 60,
         health: 100,
         isTakingDamage: false,
         score: 0,
@@ -20,7 +20,7 @@ export default function getPlayer(gx: number, gy: number, canvas: HTMLCanvasElem
         moveX: 0,
         moveY: 0,
         initialPosition: [gx,gy],
-        update: function(this: Sprite, dt?: number){
+        movePlayer: function(this: Sprite, dt?: number){
             if (dt === undefined) return;
             if(this.isTakingDamage){
                 this.speed = 20;
@@ -29,8 +29,21 @@ export default function getPlayer(gx: number, gy: number, canvas: HTMLCanvasElem
 ;            const speed = this.speed * dt;
 
             // Proposed movement
-            this.moveX = speed * this.dx;
-            this.moveY = speed * this.dy;
+            this.moveX = speed * this.mx;
+            this.moveY = speed * this.my;
+            if(this.mx < 0){
+                this.setScale(-1,1);
+            } else if(this.mx > 0){
+                this.setScale(1,1);
+            }
+
+            if (this.mx != 0 || this.my != 0) {
+                if(this.currentAnimation.name !== 'walk')
+                     this.playAnimation('walk');
+            } else {
+                if(this.currentAnimation.name !== 'idle')
+                    this.playAnimation('idle');
+            }
 
             // Check for collisions and adjust if necessary
             if (!isColliding([this.gx + this.moveX, this.gy], this.radius, this.boundingObstacles)) {
@@ -42,19 +55,6 @@ export default function getPlayer(gx: number, gy: number, canvas: HTMLCanvasElem
             }
             // this.advance();
         },
-        advance(this: Sprite){
-            this.gx += this.dx;
-            this.gy += this.dy;
-        },
-        render: function(this: Sprite){
-            this.x = (canvas.width / 2); //sets the player's x position to the center of the canvas
-            this.y = (canvas.height / 2);//sets the player's y position to the center of the canvas
-            
-            this.context.fillStyle = this.color;
-            this.context.beginPath();
-            this.context.arc(0, 0, this.visualRadius, 0, 2 * Math.PI);
-            this.context.fill();
-        }, 
         getBounds(this: Sprite){
             return {
                 left: this.gx - this.radius,
@@ -85,9 +85,7 @@ export default function getPlayer(gx: number, gy: number, canvas: HTMLCanvasElem
             this.boundingObstacles = obstacles;
         },
         takeDamage(this: Sprite, damage: number){
-            console.log('taking damage')
             this.health -= damage;
-            console.log(this.health)
         },
     });
 }

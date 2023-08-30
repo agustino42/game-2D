@@ -19,8 +19,8 @@ export default function handleInput(player: Sprite) {
         direction[0] += 1;
     }
     direction = directionAdjusted(direction);
-    player.dx = direction[0];
-    player.dy = direction[1];
+    player.mx = direction[0];
+    player.my = direction[1];
     // movePlayer(player, obstacles);
 }
 
