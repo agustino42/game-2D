@@ -21,7 +21,6 @@ export default function handleInput(player: Sprite) {
     direction = directionAdjusted(direction);
     player.mx = direction[0];
     player.my = direction[1];
-    // movePlayer(player, obstacles);
 }
 
 function directionAdjusted(direction: Point): Point {
@@ -31,20 +30,6 @@ function directionAdjusted(direction: Point): Point {
     }
     return direction;
 }
-
-// function movePlayer(player: Sprite, obstacles: Point[]): void {
-//     // Move player on X-axis
-//     const nextX = player.gx + player.dx;
-//     if (!isColliding([nextX, player.gy],player.radius, obstacles)) {
-//         player.gx += player.dx;
-//     }
-
-//     // Move player on Y-axis
-//     const nextY = player.gy + player.dy;
-//     if (!isColliding([player.gx, nextY], player.radius, obstacles)) {
-//         player.gy += player.dy;
-//     }
-// }
 
 export function isColliding(point: Point, radius: number, obstacles?: Point[]): boolean {
     if (obstacles === undefined) return false;

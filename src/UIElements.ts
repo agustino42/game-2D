@@ -65,7 +65,8 @@ export function getScoreCounter(player: Sprite, textCtx: CanvasRenderingContext2
     render: function(this: Sprite) {
       this.textContext.fillStyle = "#000";
       this.textContext.font = "bold 32px Impact";
-      this.textContext.fillText("Score: " + this.formatScore(), canvasWidth - 220, 60);
+      // this.textContext.fillText("Score: " + this.formatScore(), canvasWidth - 220, 60);
+      this.textContext.fillText("X: " + Math.floor(player.gx) + " Y: " + Math.floor(player.gy),  canvasWidth - 220, 60);
     },
     formatScore(this: Sprite) {
       //format to have 0's in front so the score always is six digits

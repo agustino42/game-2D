@@ -1,45 +1,73 @@
-import { init, GameLoop, initKeys, Text, Sprite, initPointer } from 'kontra';
+import { init, GameLoop, initKeys, Text, Sprite, initPointer, SpriteSheet } from 'kontra';
 import loadImageAssets from './AssetLoader';
 import Tileset from './Tileset';
 import generatePermTable  from './Perlin/PermutationTable';
 import Tilemap from './Tilemap';
-import getPlayer from './Player';
+import {getPlayer} from './SpriteFactory';
 import handleInput from './InputHandler';
 import getFilteredObstacles from './ObastacleHandler';
-import spawnZombie from './ZombieSpawner';
 import { getHealthBar, getScoreCounter, getTopBar } from './UIElements';
+import spawnZombie from './ZombieSpawner';
 
 async function main() {
-  const groundTiles = await loadImageAssets();
+  const [groundTiles, playerTiles] = await loadImageAssets();
+  const playerSheet = SpriteSheet({
+    image: playerTiles,
+    frameWidth: 16,
+    frameHeight: 22,
+    animations: {
+      idle: {
+        frames: '0..1',
+        frameRate: 2
+      },
+      walk: {
+        frames: '2..5',
+        frameRate: 8
+      }
+    }
+  });
   const backgroundCanvas = document.getElementById('background') as HTMLCanvasElement;
   const backgroundCtx = backgroundCanvas.getContext('2d') as CanvasRenderingContext2D;
   const textCanvas = document.getElementById('text') as HTMLCanvasElement;
   const textCtx = textCanvas.getContext('2d') as CanvasRenderingContext2D;
   const TILE_SIZE = 16;
+  const colorMap = {
+    'grass': '#2b4432',
+    // 'grass': '#729d3f',
+    // 'water': '#6db8d4',
+    'water': '#374952',
+    'sand': '#9d7e6a'
+    // 'sand': '#e8d5b0'
+  };
   const tileset = new Tileset(TILE_SIZE, groundTiles, {
-    'grass': { x: 0, y: 0 },
-    'sand': { x: 1, y: 0 },
-    'rock': { x: 2, y: 0 },
-    'water': { x: 3, y: 0 }
+    'grass': {background: colorMap.grass },
+    'water': { background: colorMap.water },
+    'flowers': { x: 2, y: 1 },
+    'innerCorner': { x: 0, y: 0 },
+    'outerCorner': { x: 1, y: 0 },
+    'border': { x: 2, y: 0 },
+    'sand': { background: colorMap.sand },
+    'rocks': { x: 1, y: 1 },
+    'waves': { x: 0, y: 1 }, 
+    'trees': { x: 3, y: 0 },
   });
   //seed with a random number from 3 to 100
-  const perm = generatePermTable(4);
+  const islandFactorConstant = 0.5;
+  const perm = generatePermTable(8);
 
   //generating game mape
-  const tilemap = new Tilemap(Math.floor(backgroundCanvas.width * 8), Math.floor(backgroundCanvas.height * 12), tileset);
-  const generatedMap = await tilemap.generateMap(perm);
+  const tilemap = new Tilemap(Math.floor(backgroundCanvas.width * 8), Math.floor(backgroundCanvas.height * 11), tileset);
+  const generatedMap = await tilemap.generateMap(perm,islandFactorConstant);
   if(!generatedMap) throw new Error('Map generation failed.');
 
   //initializing kontra
   let { canvas } = init();
-
+  console.log(canvas.width)
   //initializing player
-  const centerOfMap = [tilemap.width / 2, tilemap.height / 2];
-  console.log(centerOfMap)
-  const player = getPlayer(tilemap.width/2, tilemap.height/2, canvas);
-  console.log(player.gx, player.gy)
+  const player = getPlayer(tilemap.width/2, tilemap.height/2, canvas, playerSheet.animations);
   const filteredObstacles = getFilteredObstacles(tilemap.obstacles, player.getExtendedBounds(TILE_SIZE), TILE_SIZE);
   player.setBoundingObstacles(filteredObstacles);
+  player.playAnimation('walk');
 
   //initializing zombies
   const zombies: Sprite[] = [];
@@ -81,6 +109,7 @@ async function main() {
   
   let loop = GameLoop({  // create the main game loop
     update: function(dt) { // update the game state
+
       //FPS counter
       frameCount++;
       // Calculate elapsed time in seconds
@@ -97,7 +126,7 @@ async function main() {
 
       zombieTimer += dt;
       if(zombieTimer >= 5){
-        zombies.push(spawnZombie(player, canvas, TILE_SIZE * 2, getFilteredObstacles(tilemap.obstacles, player.getScreenBounds(), TILE_SIZE)));
+        zombies.push(spawnZombie(player, canvas, TILE_SIZE * 2, getFilteredObstacles(tilemap.obstacles, player.getScreenBounds(), TILE_SIZE), playerSheet.animations));
         zombieTimer = 0;
       }
 
@@ -107,7 +136,10 @@ async function main() {
       handleInput(player);
 
       player.setBoundingObstacles(getFilteredObstacles(tilemap.obstacles, player.getExtendedBounds(TILE_SIZE), TILE_SIZE));
+      if(player.isTakingDamage) player.reduceSpeedIfTakingDamage();
       player.update(dt);
+      player.moveUnit(dt);
+      player.setAnimation();
 
       zombies.forEach((zombie, index) => {
         if(zombie.getDistanceToTarget() > canvas.width * 1.5) zombie.health = 0;
@@ -128,7 +160,11 @@ async function main() {
         }
         let zombieFilteredObstacles = getFilteredObstacles(tilemap.obstacles, zombie.getExtendedBounds(TILE_SIZE), TILE_SIZE);
         zombie.setBoundingObstacles(zombieFilteredObstacles);
+        zombie.setScreenPosition();
+        zombie.checkIfWithinViewport();
         zombie.update(dt);
+        zombie.moveUnit(dt);
+        zombie.setAnimation();
       });
 
       uiItems.forEach((item) => {
@@ -142,7 +178,9 @@ async function main() {
       backgroundCtx.putImageData(mapSection, 0, 0);
       player.render();
       zombies.forEach((zombie) => {
-        zombie.render();
+        if(zombie.isInViewPort){
+          zombie.render();
+        }
       });
       uiItems.forEach((item) => {
         item.render();

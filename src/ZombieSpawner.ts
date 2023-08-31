@@ -1,7 +1,7 @@
-import { Sprite } from "kontra";
-import getZombie from "./Zombie";
+import { Sprite, SpriteSheet } from "kontra";
+import { getZombie } from "./SpriteFactory";
 
-export default function spawnZombie(player: Sprite, canvas: HTMLCanvasElement, tileSize: number, obstacles: [number, number][]): Sprite {
+export default function spawnZombie(player: Sprite, canvas: HTMLCanvasElement, tileSize: number, obstacles: [number, number][], animations: SpriteSheet['animations']): Sprite {
     const safeDistance = tileSize * 2; // 32 pixels away
     const viewportBounds = {
       left: player.gx - (canvas.width / 2) + safeDistance,
@@ -10,20 +10,18 @@ export default function spawnZombie(player: Sprite, canvas: HTMLCanvasElement, t
       bottom: player.gy + (canvas.height / 2) - safeDistance,
     };
 
-    // randomly generate a speed between 20 an 50
     let speed = Math.random() * (50 - 20) + 20;
   
     
     let x = Math.random() * (viewportBounds.right - viewportBounds.left) + viewportBounds.left;
     let y = Math.random() * (viewportBounds.bottom - viewportBounds.top) + viewportBounds.top;
 
-    // Make sure the spawn location is not too close to the player
     do {
         x = Math.random() * (viewportBounds.right - viewportBounds.left) + viewportBounds.left;
         y = Math.random() * (viewportBounds.bottom - viewportBounds.top) + viewportBounds.top;
       } while (isTooCloseToPlayer(x, y, player, safeDistance) || isInsideObstacle(x, y, obstacles, tileSize));
 
-    return getZombie(x, y, player, canvas, speed)
+    return getZombie(x, y, player, canvas, speed, animations)
   }
 
   function isTooCloseToPlayer(x: number, y: number, player: Sprite, safeDistance: number) {
