@@ -20,6 +20,8 @@ export default class Tilemap {
     tileset: Tileset;
     offscreenCanvas: OffscreenCanvas;
     offscreenCtx: OffscreenCanvasRenderingContext2D | null;
+    secondOffscreenCanvas: OffscreenCanvas;
+    secondOffscreenCtx: OffscreenCanvasRenderingContext2D | null;
     shorelines: {x: number, y: number}[] = [];
     obstacles: [number, number][] = [];
     mapGrid: GridElement[][] = [];
@@ -32,10 +34,13 @@ export default class Tilemap {
         this.offscreenCanvas = new OffscreenCanvas(width, height);
         this.offscreenCtx = this.offscreenCanvas.getContext('2d', { willReadFrequently: true });
         if(this.offscreenCtx) this.offscreenCtx.imageSmoothingEnabled = false;
+        this.secondOffscreenCanvas = new OffscreenCanvas(width, height);
+        this.secondOffscreenCtx = this.secondOffscreenCanvas.getContext('2d', { willReadFrequently: true });
+        if(this.secondOffscreenCtx) this.secondOffscreenCtx.imageSmoothingEnabled = false;
         this.mapGrid = [];
     }
 
-    generateMap(perm: number[], islandFactorConstant: number): Promise<number>  {
+    generateMap(perm: number[], islandFactorConstant: number): Promise<boolean>  {
         return new Promise((resolve, reject) => {
             if(!this.offscreenCtx) return reject('No context provided.');
 
@@ -59,24 +64,24 @@ export default class Tilemap {
                     perlinValue = perlinValue - (islandFactor * islandFactorConstant);
                     if (perlinValue < 0.32) {
                         this.mapGrid[y][x] = { x: x, y: y, type: 'waves'};
-                        this.tileset.drawTile(this.offscreenCtx, 'water', x, y);
+                        this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, 'water', x, y);
                         // tileType = 'water';
                     } else if (perlinValue < 0.45) {
                         this.mapGrid[y][x] = { x: x, y: y, type: 'sand'};
-                        this.tileset.drawTile(this.offscreenCtx, 'sand', x, y);
+                        this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, 'sand', x, y);
                         // tileType = Math.random() > 0.7 ? 'sandRocks' : 'sand';
                     } else if (perlinValue < 0.6) {
                         this.mapGrid[y][x] = { x: x, y: y, type: 'grass'};
-                        this.tileset.drawTile(this.offscreenCtx, 'grass', x, y);
+                        this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, 'grass', x, y);
                         // tileType = Math.random() > 0.7 ? 'grassFlowers' : 'grass';
                     } else {
-                        this.tileset.drawTile(this.offscreenCtx, 'grass', x, y);
+                        this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, 'grass', x, y);
                         this.mapGrid[y][x] = { x: x, y: y, type: 'trees'};
                         // tileType = 'trees';
                         // Additional trees for density
                         
                     }
-                    // this.tileset.drawTile(this.offscreenCtx, tileType, x, y);
+                    // this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, tileType, x, y);
                 }
             }
             
@@ -89,7 +94,7 @@ export default class Tilemap {
             this.removeSingleTiles();
             const { cornerOuter, cornerInner, border, grass } = this.findTilePositions(this.mapGrid);
             cornerOuter.forEach((corner) => {
-                this.tileset.drawTile(this.offscreenCtx, 'outerCorner', corner.x, corner.y, corner.rotation);
+                this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, 'outerCorner', corner.x, corner.y, corner.rotation);
                 // if(this.offscreenCtx){
                 //     this.offscreenCtx.fillStyle = '#729d3f55';
                 //     this.offscreenCtx.fillRect(corner.x * this.tileset.tileSize, corner.y * this.tileset.tileSize, this.tileset.tileSize, this.tileset.tileSize);
@@ -97,29 +102,29 @@ export default class Tilemap {
                     
             });
             cornerInner.forEach((corner) => {
-                this.tileset.drawTile(this.offscreenCtx, 'innerCorner', corner.x, corner.y, corner.rotation);
+                this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, 'innerCorner', corner.x, corner.y, corner.rotation);
                 // if(this.offscreenCtx){
                 //     this.offscreenCtx.fillStyle = '#729d3f55';
                 //     this.offscreenCtx.fillRect(corner.x * this.tileset.tileSize, corner.y * this.tileset.tileSize, this.tileset.tileSize, this.tileset.tileSize);
                 // }   
             });
             border.forEach((border) => {
-                this.tileset.drawTile(this.offscreenCtx, 'border', border.x, border.y, border.rotation);
+                this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, 'border', border.x, border.y, border.rotation);
                 // if(this.offscreenCtx){
                 //     this.offscreenCtx.fillStyle = '#729d3f55';
                 //     this.offscreenCtx.fillRect(border.x * this.tileset.tileSize, border.y * this.tileset.tileSize, this.tileset.tileSize, this.tileset.tileSize);
                 // }   
             });
             grass.forEach((grass) => {
-                this.tileset.drawTile(this.offscreenCtx, Math.random() > 0.7 ? 'flowers' : 'grass', grass.x, grass.y);
+                this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, Math.random() > 0.7 ? 'flowers' : 'grass', grass.x, grass.y);
             });
             this.mapGrid.forEach((row) => {
                 row.forEach((tile) => {
-                    if(tile.type === 'trees') this.tileset.drawTile(this.offscreenCtx, tile.type, tile.x, tile.y);
-                    if(tile.type === 'waves' && Math.random() > 0.90 && !this.shorelines.find(point => point.x === tile.x && point.y === tile.y)) this.tileset.drawTile(this.offscreenCtx, 'waves', tile.x, tile.y);
+                    if(tile.type === 'trees') this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, tile.type, tile.x, tile.y);
+                    if(tile.type === 'waves' && Math.random() > 0.90 && !this.shorelines.find(point => point.x === tile.x && point.y === tile.y)) this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, 'waves', tile.x, tile.y);
                     if(tile.type === 'sand'){
-                        this.tileset.drawTile(this.offscreenCtx, tile.type, tile.x, tile.y);
-                        if(Math.random() > 0.9) this.tileset.drawTile(this.offscreenCtx, 'rocks', tile.x, tile.y);
+                        this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, tile.type, tile.x, tile.y);
+                        if(Math.random() > 0.9) this.tileset.drawTile(this.offscreenCtx, this.secondOffscreenCtx, 'rocks', tile.x, tile.y);
                     } 
                         
                 });
@@ -133,7 +138,7 @@ export default class Tilemap {
                 }
             }
             console.log('Map generated.');
-            return resolve(1);
+            return resolve(true);
         });
     }
     checkCornerMeeting(){
@@ -415,5 +420,15 @@ export default class Tilemap {
     getMapSection(x: number, y: number, width: number, height: number): ImageData {
         if(!this.offscreenCtx) throw new Error('No context provided.');
         return this.offscreenCtx.getImageData(x, y, width, height);
+    }
+
+    getWorldMap(): ImageData {
+        if(!this.offscreenCtx) throw new Error('No context provided.');
+        return this.offscreenCtx.getImageData(0, 0, this.width, this.height);
+    }
+
+    getTreeTops(): ImageData {
+        if(!this.secondOffscreenCtx) throw new Error('No context provided.');
+        return this.secondOffscreenCtx.getImageData(0, 0, this.width, this.height);
     }
 }
