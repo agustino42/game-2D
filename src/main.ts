@@ -1,4 +1,4 @@
-import { init, GameLoop, initKeys, Text, Sprite, initPointer, SpriteSheet } from 'kontra';
+import { init, GameLoop, Sprite, SpriteSheet } from 'kontra';
 import loadImageAssets from './AssetLoader';
 import Tileset from './Tileset';
 import generatePermTable  from './Perlin/PermutationTable';
@@ -23,11 +23,17 @@ async function main() {
       walk: {
         frames: '2..5',
         frameRate: 8
+      },
+      zombieIdle: {
+        frames: '6..7',
+        frameRate: 2
+      },
+      zombieWalk: {
+        frames: '8..11',
+        frameRate: 8
       }
     }
   });
-  const backgroundCanvas = document.getElementById('background') as HTMLCanvasElement;
-  const backgroundCtx = backgroundCanvas.getContext('2d') as CanvasRenderingContext2D;
   const textCanvas = document.getElementById('text') as HTMLCanvasElement;
   const textCtx = textCanvas.getContext('2d') as CanvasRenderingContext2D;
   const TILE_SIZE = 16;
@@ -56,73 +62,46 @@ async function main() {
   const perm = generatePermTable(8);
 
   //generating game mape
-  const tilemap = new Tilemap(Math.floor(backgroundCanvas.width * 8), Math.floor(backgroundCanvas.height * 11), tileset);
-  const generatedMap = await tilemap.generateMap(perm,islandFactorConstant);
-  if(!generatedMap) throw new Error('Map generation failed.');
-
+  
+  
   //initializing kontra
-  let { canvas } = init();
-  console.log(canvas.width)
+  let { canvas, context } = init();
+  const tilemap = new Tilemap(Math.floor(canvas.width * 8), Math.floor(canvas.height * 11), tileset);
+  const trees = await tilemap.generateMap(perm,islandFactorConstant);
+  if(!trees) throw new Error('Map generation failed.');
   //initializing player
   const player = getPlayer(tilemap.width/2, tilemap.height/2, canvas, playerSheet.animations);
   const filteredObstacles = getFilteredObstacles(tilemap.obstacles, player.getExtendedBounds(TILE_SIZE), TILE_SIZE);
   player.setBoundingObstacles(filteredObstacles);
   player.playAnimation('walk');
 
+  // const treeTops = trees.map((tree) => {
+  //   return getTreeTop(tree[0], tree[1], groundTiles, backgroundCanvas, player);
+  // });
+  // const treeBottoms = trees.map((tree) => {
+  //   return getTree(tree[0], tree[1], groundTiles, backgroundCanvas, player);
+  // });
+
   //initializing zombies
   const zombies: Sprite[] = [];
 
   //initializing UI
   const uiItems: Sprite[] = [];
-  uiItems.push(getHealthBar(player, textCtx));
-  uiItems.push(getScoreCounter(player, textCtx, textCanvas.width));
+  uiItems.push(getHealthBar(player, context));
+  uiItems.push(getScoreCounter(player, context, canvas.width));
   uiItems.push(getTopBar(canvas.width));
   
-
-
   //setting up background
-  let mapSection = getMapSection(tilemap, player, backgroundCanvas);
-  backgroundCtx.putImageData(mapSection, 0, 0);
+  // let mapSection = getMapSection(tilemap, player, backgroundCanvas);
+  const worldMap = getWorldMap(tilemap, player, canvas);
+  const treeTops = getTreeTops(tilemap, player, canvas);
+  // backgroundCtx.putImageData(mapSection, 0, 0);
 
-
-
-  //d
-  initKeys();
-  initPointer();
-  
-
-  // for debugging fps counter
-  const fpsCounter = Text({
-    text: 'FPS: 0',
-    font: '10px Arial',
-    color: 'black',
-    x: 20,
-    y: 20,
-    anchor: {x: 0.5, y: 0.5},
-    textAlign: 'center'
-  });
-
-  let frameCount = 0;
-  let startTime = Date.now();
 
   let zombieTimer = 0;
   
   let loop = GameLoop({  // create the main game loop
     update: function(dt) { // update the game state
-
-      //FPS counter
-      frameCount++;
-      // Calculate elapsed time in seconds
-      let elapsed = (Date.now() - startTime) / 1000;
-    
-      // Calculate FPS every second
-      if (elapsed >= 1) {
-        let fps = frameCount / elapsed;
-        fpsCounter.text = `FPS: ${Math.round(fps)}`;
-        // Reset counters
-        frameCount = 0;
-        startTime = Date.now();
-      }
 
       zombieTimer += dt;
       if(zombieTimer >= 5){
@@ -131,7 +110,10 @@ async function main() {
       }
 
       //update map
-      mapSection = getMapSection(tilemap, player, backgroundCanvas);
+      // mapSection = getMapSection(tilemap, player, backgroundCanvas);
+      worldMap.update();
+      treeTops.update();
+
       
       handleInput(player);
 
@@ -140,6 +122,11 @@ async function main() {
       player.update(dt);
       player.moveUnit(dt);
       player.setAnimation();
+
+      // for(let i = 0; i < treeTops.length; i++){
+      //   treeTops[i].update();
+      //   treeBottoms[i].update();
+      // }
 
       zombies.forEach((zombie, index) => {
         if(zombie.getDistanceToTarget() > canvas.width * 1.5) zombie.health = 0;
@@ -174,14 +161,16 @@ async function main() {
     },
     render: function() { // render the game state
       textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-      // fpsCounter.render();
-      backgroundCtx.putImageData(mapSection, 0, 0);
+      worldMap.render();
       player.render();
       zombies.forEach((zombie) => {
         if(zombie.isInViewPort){
           zombie.render();
         }
       });
+      
+      // backgroundCtx.putImageData(mapSection, 0, 0);
+      treeTops.render();
       uiItems.forEach((item) => {
         item.render();
       });
@@ -194,12 +183,40 @@ async function main() {
 
 main();
 
-function getMapSection(tilemap: Tilemap, player: Sprite, canvas: HTMLCanvasElement){
-  return tilemap.getMapSection(
-    player.gx - (canvas.width / 2),
-    player.gy - (canvas.height / 2),
-    canvas.width,
-    canvas.height
-  );
+function getWorldMap(tilemap: Tilemap, player: Sprite, canvas: HTMLCanvasElement){
+  const image = convertImageDataToCImage(tilemap.getWorldMap());
+  return getMapImage(image, player, canvas);
 }
+
+function getTreeTops(tilemap: Tilemap, player: Sprite, canvas: HTMLCanvasElement): Sprite{
+  const image = convertImageDataToCImage(tilemap.getTreeTops());
+  return getMapImage(image, player, canvas);
+}
+
+function convertImageDataToCImage(imageData: ImageData): HTMLImageElement {
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = imageData.width;
+  tempCanvas.height = imageData.height;
+  const ctx = tempCanvas.getContext('2d');
+  ctx?.putImageData(imageData, 0, 0);
+  const img = new Image();
+  img.src = tempCanvas.toDataURL();
+  return img;
+}
+
+function getMapImage(image: HTMLImageElement, player: Sprite, canvas: HTMLCanvasElement): Sprite{
+  return Sprite({
+    x: 0,
+    y: 0,
+    player: player,
+    image: image,
+    anchor: {x: 0, y: 0},
+    update: function(this: Sprite){
+    },
+    render: function(this: Sprite){
+      this.context?.drawImage(this.image, this.player.gx - canvas.width/2, this.player.gy - canvas.height / 2, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+    }
+  });
+}
+
 
