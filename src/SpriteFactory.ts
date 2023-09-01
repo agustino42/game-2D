@@ -11,7 +11,7 @@ function getBaseSprite(x: number, y: number, gx: number, gy: number, animations:
         radius: radius,
         mx: 0,
         my: 0,
-        anchor: {x: 0.5, y: 0.5},
+        anchor: {x: 0.5, y: 0.7},
         speed: speed,
         health: health,
         boundingObstacles: [],
@@ -64,11 +64,11 @@ function getBaseSprite(x: number, y: number, gx: number, gy: number, animations:
             }
 
             if (this.moveX != 0 || this.moveY != 0) {
-                if(this.currentAnimation.name !== 'walk')
-                     this.playAnimation('walk');
+                if(this.currentAnimation.name !== this.walk)
+                     this.playAnimation(this.walk);
             } else {
-                if(this.currentAnimation.name !== 'idle')
-                    this.playAnimation('idle');
+                if(this.currentAnimation.name !== this.idle)
+                    this.playAnimation(this.idle);
             }
         }
     });
@@ -76,7 +76,9 @@ function getBaseSprite(x: number, y: number, gx: number, gy: number, animations:
 
 export function getPlayer(gx: number, gy: number, canvas: HTMLCanvasElement, animations: SpriteSheet['animations']): Sprite {
     
-    const player = getBaseSprite(canvas.width / 2, canvas.height / 2, gx - 4, gy - 5, animations, 7, 60, 100);
+    const player = getBaseSprite(canvas.width / 2, canvas.height / 2, gx - 4, gy - 5, animations, 5, 60, 100);
+    player.idle = 'idle';
+    player.walk = 'walk';
     player.getScreenBounds = function(this: Sprite){
         return {
             left: this.gx - (canvas.width / 2),
@@ -97,7 +99,7 @@ export function getPlayer(gx: number, gy: number, canvas: HTMLCanvasElement, ani
 }
 
 export function getZombie(x: number, y: number, target: Sprite, canvas: HTMLCanvasElement, speed: number, animations: SpriteSheet['animations']): Sprite {
-    const zombie = getBaseSprite(x, y, x, y, animations, 7, speed, 100);
+    const zombie = getBaseSprite(x, y, x, y, animations, 5, speed, 100);
     zombie.canvas = canvas;
     zombie.target = target;
     zombie.damage = 5;
@@ -105,6 +107,8 @@ export function getZombie(x: number, y: number, target: Sprite, canvas: HTMLCanv
     zombie.cooldownTime = 1;
     zombie.cooldownCounter = 0;
     zombie.isInViewPort = false;
+    zombie.idle = 'zombieIdle';
+    zombie.walk = 'zombieWalk';
     zombie.getDistanceToTarget = function(this: Sprite){
         return Math.sqrt(Math.pow(this.gx - this.target.gx, 2) + Math.pow(this.gy - this.target.gy, 2));
     }
@@ -137,4 +141,5 @@ export function getZombie(x: number, y: number, target: Sprite, canvas: HTMLCanv
     
     return zombie;
 }
+
 

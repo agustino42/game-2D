@@ -29,8 +29,9 @@ export default function spawnZombie(player: Sprite, canvas: HTMLCanvasElement, t
   }
   
   function isInsideObstacle(x: number, y: number, obstacles: [number, number][], tileSize: number) {
+    const radius = 7;
     for (let obstacle of obstacles) {
-      if (x > obstacle[0] && x < obstacle[0] + tileSize && y > obstacle[1] && y < obstacle[1] + tileSize) {
+      if (x + radius > obstacle[0] && x < obstacle[0] + tileSize && y + radius > obstacle[1] && y < obstacle[1] + tileSize) {
         return true;
       }
     }
