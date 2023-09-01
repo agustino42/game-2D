@@ -1,4 +1,5 @@
-import { keyPressed, gamepadPressed, keyMap, Sprite} from "kontra";
+import { Sprite } from "kontra";
+import { keyPressed } from "./InputEvents";
 
 type Point = [number, number];
 
@@ -6,16 +7,16 @@ const TILE_SIZE = 16;
 
 export default function handleInput(player: Sprite) {
     let direction: Point = [0, 0];
-    if (keyPressed(keyMap.ArrowDown) || keyPressed('s') || gamepadPressed('dpaddown')) {
+    if (keyPressed('ArrowDown') || keyPressed('s')) {
         direction[1] += 1;
     }
-    if (keyPressed(keyMap.ArrowUp) || keyPressed('w') || gamepadPressed('dpadup')) {
+    if (keyPressed('ArrowUp') || keyPressed('w')) {
         direction[1] -= 1;
     }
-    if (keyPressed(keyMap.ArrowLeft) || keyPressed('a') || gamepadPressed('dpadleft')) {
+    if (keyPressed('ArrowLeft') || keyPressed('a')) {
         direction[0] -= 1;
     }
-    if (keyPressed(keyMap.ArrowRight) || keyPressed('d') || gamepadPressed('dpadright')) {
+    if (keyPressed('ArrowRight') || keyPressed('d')) {
         direction[0] += 1;
     }
     direction = directionAdjusted(direction);
