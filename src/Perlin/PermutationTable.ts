@@ -10,7 +10,7 @@ export default function generatePermTable(seed: number) {
         [perm[i], perm[j]] = [perm[j], perm[i]];
     }
 
-    const permTable = [];
+    const permTable: number[] = [];
     for (let i = 0; i < 512; i++) {
         permTable[i] = perm[i & 255];
     }

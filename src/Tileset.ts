@@ -15,7 +15,7 @@ export default class Tileset {
 
     // Method to draw a specific tile to a specific position
     drawTile(ctx: OffscreenCanvasRenderingContext2D | null, secondCtx: OffscreenCanvasRenderingContext2D | null, tileName: keyof TerrainMap, x: number, y: number, rotation: number = 0) {
-        if(!ctx) return console.error('No context provided.');
+        if(!ctx) return;
         const tile = this.tiles[tileName];
         if (tile) {
             if(tile.background) {
@@ -27,19 +27,15 @@ export default class Tileset {
                 const sy = tile.y * this.tileSize;
                 if(rotation !== 0) this.drawRotatedTile(ctx, {x: tile.x, y: tile.y}, x, y, rotation);
                 else {
-                    if(tileName === 'trees'){
+                    if(tileName === 't'){
                         let xr: number = 1;
                         let yr: number = 1;
-                        // let xr: number = Math.random() * 0.5;
-                        // let yr: number = Math.random() * 0.5;
-                        ctx.drawImage(this.tileSheet, 16 * 3, 19, this.tileSize * 2, 13, (x-xr) * this.tileSize + this.tileSize / 2, (y-yr) * this.tileSize + 19, this.tileSize * 2, 13);
+                           ctx.drawImage(this.tileSheet, 16 * 3, 19, this.tileSize * 2, 13, (x-xr) * this.tileSize + this.tileSize / 2, (y-yr) * this.tileSize + 19, this.tileSize * 2, 13);
                         secondCtx?.drawImage(this.tileSheet, 16 * 3, 0, 32, 19, (x-xr) * this.tileSize + this.tileSize / 2, (y-yr) * this.tileSize, 32, 19);
                     } else
                         ctx.drawImage(this.tileSheet, sx, sy, this.tileSize, this.tileSize, x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
                 }
             }
-        } else {
-            console.error(`Tile with name ${tileName} does not exist.`);
         }
     }
 

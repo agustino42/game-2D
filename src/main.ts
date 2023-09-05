@@ -1,95 +1,74 @@
-import { init, GameLoop, Sprite, SpriteSheet } from 'kontra';
+import { init, GameLoop, Sprite } from 'kontra';
 import loadImageAssets from './AssetLoader';
-import Tileset from './Tileset';
-import generatePermTable  from './Perlin/PermutationTable';
 import Tilemap from './Tilemap';
 import {getPlayer} from './SpriteFactory';
-import handleInput from './InputHandler';
-import getFilteredObstacles from './ObastacleHandler';
-import { getHealthBar, getScoreCounter, getTopBar } from './UIElements';
+import {handleInput, isActionKeyPressed, isSpacePressed} from './InputHandler';
+import { getFilteredObstacles, getFilteredSprites } from './ObastacleHandler';
 import spawnZombie from './ZombieSpawner';
+import { Position } from './Interfaces';
+import { getActionKeyPressed } from './InputEvents';
+import { getGingerShot, getGingerShotHits, getTurmericCursor, getVCBomb } from './ProjectileFactory';
+import { getNormalizedVector } from './Utils';
+import { colorMap, getTileSet, getUnitSheet } from './Presets';
+import generateMap from './MapGenerator';
+import { GameState } from './GameState';
+import { playGingerShotSound } from './Sounds';
+//@ts-ignore
+// import { playMusic } from './Music';
 
 async function main() {
-  const [groundTiles, playerTiles] = await loadImageAssets();
-  const playerSheet = SpriteSheet({
-    image: playerTiles,
-    frameWidth: 16,
-    frameHeight: 22,
-    animations: {
-      idle: {
-        frames: '0..1',
-        frameRate: 2
-      },
-      walk: {
-        frames: '2..5',
-        frameRate: 8
-      },
-      zombieIdle: {
-        frames: '6..7',
-        frameRate: 2
-      },
-      zombieWalk: {
-        frames: '8..11',
-        frameRate: 8
-      }
-    }
-  });
-  const textCanvas = document.getElementById('text') as HTMLCanvasElement;
-  const textCtx = textCanvas.getContext('2d') as CanvasRenderingContext2D;
+  const [groundTiles, unitTiles] = await loadImageAssets();
+  const unitSheet = getUnitSheet(unitTiles);
+  let { canvas } = init();
+  const textCanvas = document.getElementById('t') as HTMLCanvasElement;
   const TILE_SIZE = 16;
-  const colorMap = {
-    'grass': '#2b4432',
-    // 'grass': '#729d3f',
-    // 'water': '#6db8d4',
-    'water': '#374952',
-    'sand': '#9d7e6a'
-    // 'sand': '#e8d5b0'
-  };
-  const tileset = new Tileset(TILE_SIZE, groundTiles, {
-    'grass': {background: colorMap.grass },
-    'water': { background: colorMap.water },
-    'flowers': { x: 2, y: 1 },
-    'innerCorner': { x: 0, y: 0 },
-    'outerCorner': { x: 1, y: 0 },
-    'border': { x: 2, y: 0 },
-    'sand': { background: colorMap.sand },
-    'rocks': { x: 1, y: 1 },
-    'waves': { x: 0, y: 1 }, 
-    'trees': { x: 3, y: 0 },
-  });
-  //seed with a random number from 3 to 100
-  const islandFactorConstant = 0.5;
-  const perm = generatePermTable(8);
-
-  //generating game mape
+  const tileset = getTileSet(TILE_SIZE, groundTiles, colorMap);
   
   
   //initializing kontra
-  let { canvas, context } = init();
-  const tilemap = new Tilemap(Math.floor(canvas.width * 8), Math.floor(canvas.height * 11), tileset);
-  const trees = await tilemap.generateMap(perm,islandFactorConstant);
-  if(!trees) throw new Error('Map generation failed.');
+  const mouseButtonPressed: { [key: string]: boolean } = {};
+  const mousePosition: Position = {x: 0, y: 0};
+  
+  canvas.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    mousePosition.x = (event.clientX - rect.left) * scaleX;
+    mousePosition.y = (event.clientY - rect.top) * scaleY;
+  });
+  canvas.addEventListener('mousedown', (event) => {
+    mouseButtonPressed[event.button] = true;
+  });
+  
+  canvas.addEventListener('mouseup', (event) => {
+    mouseButtonPressed[event.button] = false;
+  });
+  const tilemapWidth = canvas.width * 8;
+  const tilemapHeight = canvas.height * 11;
+  //initializing map
   //initializing player
-  const player = getPlayer(tilemap.width/2, tilemap.height/2, canvas, playerSheet.animations);
-  const filteredObstacles = getFilteredObstacles(tilemap.obstacles, player.getExtendedBounds(TILE_SIZE), TILE_SIZE);
-  player.setBoundingObstacles(filteredObstacles);
-  player.playAnimation('walk');
-
-  // const treeTops = trees.map((tree) => {
-  //   return getTreeTop(tree[0], tree[1], groundTiles, backgroundCanvas, player);
-  // });
-  // const treeBottoms = trees.map((tree) => {
-  //   return getTree(tree[0], tree[1], groundTiles, backgroundCanvas, player);
-  // });
-
-  //initializing zombies
+  const player = getPlayer(tilemapWidth / 2, tilemapHeight /2, canvas, unitSheet.animations);
   const zombies: Sprite[] = [];
+  const projectiles: Sprite[] = [];
+  const projectilesHits: Sprite[] = [];
+  const aoeTargets: Sprite[] = [];
+  const aoe: Sprite[] = [];
+  
+  const tilemap = await generateMap(8,0.5, tilemapWidth, tilemapHeight, tileset)
+  
+  textCanvas.width = canvas.offsetWidth;
+  const gameState = new GameState(180, player, textCanvas, textCanvas.width/canvas.width);
 
-  //initializing UI
-  const uiItems: Sprite[] = [];
-  uiItems.push(getHealthBar(player, context));
-  uiItems.push(getScoreCounter(player, context, canvas.width));
-  uiItems.push(getTopBar(canvas.width));
+  window.addEventListener('resize', () => {
+    textCanvas.width = canvas.offsetWidth;
+    gameState.scale = textCanvas.width/canvas.width;
+    gameState.reloadUI();
+  });
+  gameState.setState(0);
+  // playMusic();
+  
+  
   
   //setting up background
   // let mapSection = getMapSection(tilemap, player, backgroundCanvas);
@@ -102,86 +81,199 @@ async function main() {
   
   let loop = GameLoop({  // create the main game loop
     update: function(dt) { // update the game state
+      if(gameState.state === 0 || gameState.state === 2){
+        if(isSpacePressed()){
+          gameState.setState(1);
+        }
+      } else if(gameState.state === 1){
 
-      zombieTimer += dt;
-      if(zombieTimer >= 5){
-        zombies.push(spawnZombie(player, canvas, TILE_SIZE * 2, getFilteredObstacles(tilemap.obstacles, player.getScreenBounds(), TILE_SIZE), playerSheet.animations));
-        zombieTimer = 0;
-      }
-
-      //update map
-      // mapSection = getMapSection(tilemap, player, backgroundCanvas);
-      worldMap.update();
-      treeTops.update();
-
-      
-      handleInput(player);
-
-      player.setBoundingObstacles(getFilteredObstacles(tilemap.obstacles, player.getExtendedBounds(TILE_SIZE), TILE_SIZE));
-      if(player.isTakingDamage) player.reduceSpeedIfTakingDamage();
-      player.update(dt);
-      player.moveUnit(dt);
-      player.setAnimation();
-
-      // for(let i = 0; i < treeTops.length; i++){
-      //   treeTops[i].update();
-      //   treeBottoms[i].update();
-      // }
-
-      zombies.forEach((zombie, index) => {
-        if(zombie.getDistanceToTarget() > canvas.width * 1.5) zombie.health = 0;
-        if(zombie.getDistanceToTarget() < player.radius && !zombie.onCooldown) {
-          player.takeDamage(zombie.damage);
-          player.isTakingDamage = true;
-          zombie.onCooldown = true;
-          zombie.cooldownCounter = 0;
-        } else if(zombie.onCooldown) {
-          zombie.cooldownCounter += dt;
-          if(zombie.cooldownCounter >= zombie.cooldownTime) {
-            zombie.onCooldown = false;
+        const screenObstacles = getFilteredObstacles(tilemap.obstacles, player.getScreenBounds(), TILE_SIZE);
+        const screenTrees = getFilteredSprites(tilemap.trees, player.getScreenBounds());
+        zombieTimer += dt;
+        if(zombieTimer >= 4 * (1 - gameState.timePassed / gameState.levelTime) + 1){
+          zombies.push(spawnZombie(player, canvas, TILE_SIZE * 2, screenObstacles, unitSheet.animations));
+          zombieTimer = 0;
+        }
+  
+        //update map
+        worldMap.update();
+        treeTops.update();
+  
+        
+        handleInput(player);
+        if(isActionKeyPressed()){
+          const inputMap = getActionKeyPressed();
+          if(inputMap[' '] && player.cooldowns[1] === 0){
+            if(aoeTargets.length === 0 && player.cooldowns[3] === 0 ) {
+              aoeTargets[0] = getVCBomb(getMousePosition(), canvas, player);
+              player.cooldowns[3] = 0.5;
+              player.vcb = true;
+            } else if(player.vcb && player.cooldowns[3] === 0){
+              aoeTargets.splice(0,1);
+              player.vcb = false;
+              player.cooldowns[3] = 0.5;
+            }
+          }
+          if((inputMap['e'] || inputMap['q']) && player.cooldowns[2] === 0){
+            if(aoeTargets.length === 0 && player.cooldowns[3] === 0 ) {
+              aoeTargets[0] = getTurmericCursor(getMousePosition(), canvas, player);
+              player.cooldowns[3] = 0.5;
+              player.tc = true;
+            } else if(player.tc && player.cooldowns[3] === 0){
+              aoeTargets.splice(0,1);
+              player.tc = false;
+              player.cooldowns[3] = 0.5;
+            }
           }
         }
-        if(zombie.health <= 0) {
-          zombies.splice(index, 1);
-          return;
+        if(handleMouseInput()){
+          if(player.cooldowns[0] === 0 && !player.vcb && !player.tc && player.cooldowns[3] === 0){
+            player.cooldowns[3] = 0.5;
+            player.cooldowns[0] = 0.5;
+            const direction = getNormalizedVector(player.getScreenPosition(), getMousePosition())
+            projectiles.push(getGingerShot(player.getPosition(),direction, canvas, player ));
+            playGingerShotSound();
+          }  else if(player.vcb && aoeTargets.length > 0){
+            aoe.push(...aoeTargets[0].explode(zombies));
+            aoeTargets.splice(0,1);
+            player.vcb = false;
+            player.cooldowns[3] = 0.5;
+            player.cooldowns[1] = 15;
+          } else if(player.tc && aoeTargets.length > 0){
+            aoe.push(...aoeTargets[0].explode(zombies));
+            aoeTargets.splice(0,1);
+            player.tc = false;
+            player.cooldowns[3] = 0.5;
+            player.cooldowns[2] = 15;
+          }
+        } 
+        projectilesHits.forEach((projectileHit) => {
+          projectileHit.update(dt);
+          if(projectileHit.ttl <= 0){
+            projectilesHits.splice(projectilesHits.indexOf(projectileHit), 1);
+          }
+        });
+  
+        projectiles.forEach((projectile) => {
+          projectile.setMovement(dt, [...screenTrees, ...zombies ]);
+          projectile.update(dt);
+          if(projectile.isColliding)
+            projectile.ttl = 0;
+          if(projectile.ttl <= 0){
+            projectiles.splice(projectiles.indexOf(projectile), 1);
+            projectilesHits.push(...getGingerShotHits(projectile.getPosition(), canvas, player)); 
+          }
+        });
+
+        aoeTargets.forEach((target) => {
+          target.setPos(getMousePosition());
+          target.update(dt);
+        });
+
+        
+        aoe.forEach((bomb) => {
+          bomb.update(dt);
+          if(bomb.duration <= 0){
+            aoe.splice(aoe.indexOf(bomb), 1);
+          }
+        });
+
+        
+
+
+        player.setBoundingObstacles(getFilteredObstacles(tilemap.obstacles, player.getExtendedBounds(TILE_SIZE), TILE_SIZE));
+        
+        player.reduceSpeedIfTakingDamage();
+        player.update(dt);
+        player.moveUnit(dt);
+        player.setAnimation();
+        player.updateCooldowns(dt);
+        let zombiesKilled: number = 0;
+  
+        zombies.forEach((zombie, index) => {
+          if(zombie.getDistanceToTarget() > canvas.width * 1.5) zombie.health = 0;
+          if(zombie.getDistanceToTarget() < player.radius && zombie.cooldowns[0] === 0) {
+            player.takeDamage(zombie.damage);
+            zombie.cooldowns[0] = 1;
+          }
+          if(zombie.health <= 0) {
+            zombies.splice(index, 1);
+            zombiesKilled++;
+            return;
+          }
+          let zombieFilteredObstacles = getFilteredObstacles(tilemap.obstacles, zombie.getExtendedBounds(TILE_SIZE), TILE_SIZE);
+          zombie.updateCooldowns(dt); 
+          zombie.setBoundingObstacles(zombieFilteredObstacles);
+          zombie.setScreenPosition();
+          zombie.checkIfWithinViewport();
+          zombie.update(dt);
+          zombie.moveUnit(dt);
+          zombie.setAnimation();
+          if(zombie.cooldowns[4] === 0){
+            zombie.isTakingDamage = false;
+          }
+          zombie.speed = zombie.normalSpeed;
+        });
+        if(player.health <= 0){
+          gameState.setState(2);
+          zombies.forEach((zombie) => {
+            zombie.health = 0;
+          });
         }
-        let zombieFilteredObstacles = getFilteredObstacles(tilemap.obstacles, zombie.getExtendedBounds(TILE_SIZE), TILE_SIZE);
-        zombie.setBoundingObstacles(zombieFilteredObstacles);
-        zombie.setScreenPosition();
-        zombie.checkIfWithinViewport();
-        zombie.update(dt);
-        zombie.moveUnit(dt);
-        zombie.setAnimation();
-      });
-
-      uiItems.forEach((item) => {
-        item.update();
-      });
-
+        player.score += zombiesKilled * 10 * (1 + zombiesKilled * 0.5);
+        player.reset();
+      }
+      gameState.update(dt);
     },
     render: function() { // render the game state
-      textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-      worldMap.render();
-      player.render();
-      zombies.forEach((zombie) => {
-        if(zombie.isInViewPort){
-          zombie.render();
-        }
-      });
-      
-      // backgroundCtx.putImageData(mapSection, 0, 0);
-      treeTops.render();
-      uiItems.forEach((item) => {
-        item.render();
-      });
-
+      if(gameState.state === 1){
+        worldMap.render();
+        aoeTargets.forEach((target) => {
+          target.render();
+        });
+        player.render();
+        zombies.forEach((zombie) => {
+          if(zombie.isInViewPort){
+            if(zombie.isTarget) zombie.drawTargetMark();
+            zombie.render();
+          }
+        });
+        aoe.forEach((bomb) => {
+          bomb.render();
+        });
+        projectiles.forEach((projectile) => {
+          projectile.render();
+        });
+        projectilesHits.forEach((projectileHit) => {
+          projectileHit.render();
+        });
+        
+        treeTops.render();
+      }
+      gameState.renderUI();
     }
   });
 
-  loop.start();    // start the game
+  loop.start(); 
+     // start the game
+  function getMousePosition(): Position {
+    return mousePosition;
+  }
+
+  function mousePressed(button: number): boolean {
+    return !!mouseButtonPressed[button];
+  }
+
+  function handleMouseInput(): boolean {
+    if(mousePressed(0)) {
+        return true;
+    }
+    return false;
+}
 }
 
 main();
+
 
 function getWorldMap(tilemap: Tilemap, player: Sprite, canvas: HTMLCanvasElement){
   const image = convertImageDataToCImage(tilemap.getWorldMap());
@@ -218,5 +310,7 @@ function getMapImage(image: HTMLImageElement, player: Sprite, canvas: HTMLCanvas
     }
   });
 }
+
+
 
 

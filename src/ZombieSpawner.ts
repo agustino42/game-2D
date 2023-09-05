@@ -1,7 +1,8 @@
 import { Sprite, SpriteSheet } from "kontra";
 import { getZombie } from "./SpriteFactory";
+import { Position } from "./Interfaces";
 
-export default function spawnZombie(player: Sprite, canvas: HTMLCanvasElement, tileSize: number, obstacles: [number, number][], animations: SpriteSheet['animations']): Sprite {
+export default function spawnZombie(player: Sprite, canvas: HTMLCanvasElement, tileSize: number, obstacles: Position[], animations: SpriteSheet['animations']): Sprite {
     const safeDistance = tileSize * 2; // 32 pixels away
     const viewportBounds = {
       left: player.gx - (canvas.width / 2) + safeDistance,
@@ -10,7 +11,7 @@ export default function spawnZombie(player: Sprite, canvas: HTMLCanvasElement, t
       bottom: player.gy + (canvas.height / 2) - safeDistance,
     };
 
-    let speed = Math.random() * (50 - 20) + 20;
+    let speed = Math.random() * (70 - 30) + 30;
   
     
     let x = Math.random() * (viewportBounds.right - viewportBounds.left) + viewportBounds.left;
@@ -28,10 +29,10 @@ export default function spawnZombie(player: Sprite, canvas: HTMLCanvasElement, t
     return Math.abs(x - player.gx) < safeDistance && Math.abs(y - player.gy) < safeDistance;
   }
   
-  function isInsideObstacle(x: number, y: number, obstacles: [number, number][], tileSize: number) {
+  function isInsideObstacle(x: number, y: number, obstacles: Position[], tileSize: number) {
     const radius = 7;
     for (let obstacle of obstacles) {
-      if (x + radius > obstacle[0] && x < obstacle[0] + tileSize && y + radius > obstacle[1] && y < obstacle[1] + tileSize) {
+      if (x + radius > obstacle.x && x < obstacle.x + tileSize && y + radius > obstacle.y && y < obstacle.y + tileSize) {
         return true;
       }
     }

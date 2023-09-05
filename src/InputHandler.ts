@@ -1,48 +1,60 @@
 import { Sprite } from "kontra";
-import { keyPressed } from "./InputEvents";
-
-type Point = [number, number];
+import { keyPressed} from "./InputEvents";
+import { Position } from "./Interfaces";
 
 const TILE_SIZE = 16;
 
-export default function handleInput(player: Sprite) {
-    let direction: Point = [0, 0];
+export function handleInput(player: Sprite) {
+    let direction: Position = {x:0, y: 0};
     if (keyPressed('ArrowDown') || keyPressed('s')) {
-        direction[1] += 1;
+        direction.y += 1;
     }
     if (keyPressed('ArrowUp') || keyPressed('w')) {
-        direction[1] -= 1;
+        direction.y -= 1;
     }
     if (keyPressed('ArrowLeft') || keyPressed('a')) {
-        direction[0] -= 1;
+        direction.x -= 1;
     }
     if (keyPressed('ArrowRight') || keyPressed('d')) {
-        direction[0] += 1;
+        direction.x += 1;
     }
     direction = directionAdjusted(direction);
-    player.mx = direction[0];
-    player.my = direction[1];
+    player.mx = direction.x;
+    player.my = direction.y;
 }
 
-function directionAdjusted(direction: Point): Point {
-    if(direction [0] !== 0 && direction[1] !== 0) {
-        direction[0] *= 0.7071;
-        direction[1] *= 0.7071;
+export function isSpacePressed(): boolean {
+    if (keyPressed(' ')) {
+        return true;
+    }
+    return false;
+}
+
+export function isActionKeyPressed(): boolean{
+    if (keyPressed('e') || keyPressed(' ') || keyPressed('q'))
+        return true;
+    return false;
+}
+
+function directionAdjusted(direction: Position): Position {
+    if(direction.x !== 0 && direction.y !== 0) {
+        direction.x *= 0.7;
+        direction.y *= 0.7;
     }
     return direction;
 }
 
-export function isColliding(point: Point, radius: number, obstacles?: Point[]): boolean {
+export function isColliding(position: Position, radius: number, obstacles?: Position[]): boolean {
     if (obstacles === undefined) return false;
-    const scaledX = point[0];
-    const scaledY = point[1];
+    const scaledX = position.x;
+    const scaledY = position.y;
 
-    for (const [obstacleX, obstacleY] of obstacles) {
+    for (const obstacle of obstacles) {
         const rect = {
-            left: obstacleX,
-            right: (obstacleX + TILE_SIZE),
-            top: obstacleY,
-            bottom: (obstacleY + TILE_SIZE)
+            left: obstacle.x,
+            right: (obstacle.x + TILE_SIZE),
+            top: obstacle.y,
+            bottom: (obstacle.y + TILE_SIZE)
         };
 
         if (circleRectCollision({x: scaledX, y: scaledY, radius: radius}, rect)) {
