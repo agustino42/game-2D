@@ -58,7 +58,7 @@ async function main() {
   const tilemap = await generateMap(8,0.5, tilemapWidth, tilemapHeight, tileset)
   
   textCanvas.width = canvas.offsetWidth;
-  const gameState = new GameState(20, player, textCanvas, textCanvas.width/canvas.width);
+  const gameState = new GameState(300, player, textCanvas, textCanvas.width/canvas.width);
 
   window.addEventListener('resize', () => {
     textCanvas.width = canvas.offsetWidth;
@@ -71,17 +71,16 @@ async function main() {
   
   
   //setting up background
-  // let mapSection = getMapSection(tilemap, player, backgroundCanvas);
   const worldMap = getWorldMap(tilemap, player, canvas);
   const treeTops = getTreeTops(tilemap, player, canvas);
-  // backgroundCtx.putImageData(mapSection, 0, 0);
+  
 
 
   let zombieTimer = 0;
   
   let loop = GameLoop({  // create the main game loop
     update: function(dt) { // update the game state
-      if(gameState.state === 0 || gameState.state === 2){
+      if(gameState.state === 0 || gameState.state === 2 || gameState.state === 3){
         if(isSpacePressed()){
           gameState.setState(1);
         }
@@ -94,10 +93,6 @@ async function main() {
           zombies.push(spawnZombie(player, canvas, TILE_SIZE * 2, screenObstacles, unitSheet.animations));
           zombieTimer = 0;
         }
-  
-        //update map
-        worldMap.update();
-        treeTops.update();
   
         
         handleInput(player);
@@ -227,7 +222,7 @@ async function main() {
     },
     render: function() { // render the game state
       if(gameState.state === 1){
-        worldMap.render();
+        worldMap.drawImage();
         aoeTargets.forEach((target) => {
           target.render();
         });
@@ -248,7 +243,7 @@ async function main() {
           projectileHit.render();
         });
         
-        treeTops.render();
+        treeTops.drawImage();
       }
       gameState.renderUI();
     }
@@ -303,10 +298,8 @@ function getMapImage(image: HTMLImageElement, player: Sprite, canvas: HTMLCanvas
     player: player,
     image: image,
     anchor: {x: 0, y: 0},
-    update: function(this: Sprite){
-    },
-    render: function(this: Sprite){
-      this.context?.drawImage(this.image, this.player.gx - canvas.width/2, this.player.gy - canvas.height / 2, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+    drawImage: function(this: Sprite){
+      this.context?.drawImage(this.image, Math.round(this.player.gx - canvas.width/2), Math.round(this.player.gy - canvas.height / 2), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
     }
   });
 }
