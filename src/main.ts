@@ -58,7 +58,7 @@ async function main() {
   const tilemap = await generateMap(8,0.5, tilemapWidth, tilemapHeight, tileset)
   
   textCanvas.width = canvas.offsetWidth;
-  const gameState = new GameState(180, player, textCanvas, textCanvas.width/canvas.width);
+  const gameState = new GameState(20, player, textCanvas, textCanvas.width/canvas.width);
 
   window.addEventListener('resize', () => {
     textCanvas.width = canvas.offsetWidth;

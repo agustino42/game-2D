@@ -10,6 +10,7 @@ export class GameState {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D | null;
     scale: number;
+    winner: boolean;
     
     constructor(levelTime: number, player: Sprite, canvas: HTMLCanvasElement, scale: number) {
         this.levelTime = levelTime;
@@ -20,12 +21,16 @@ export class GameState {
         this.canvas = canvas;
         this.context = canvas.getContext('2d');
         this.scale = scale;
+        this.winner = false;
     }
 
     update(dt: number) {
         this.timePassed += dt;
         if(this.timePassed >= this.levelTime){
-            this.player.score *= 2;
+            if(!this.winner){
+                this.player.score *= 2;
+                this.winner = true;
+            } 
             this.setState(3);
         }
         this.uiItems.forEach(item => item.update());
