@@ -20,7 +20,12 @@ export function getUnitSheet(unitTiles: HTMLImageElement): SpriteSheet {
             frames: '5..6',
             frameRate: 8
             },
-            zombieIdle: {
+            splash: {
+            frames: '4',
+            frameRate: 0,
+            loop: false
+            },
+            zI: {
             frames: '6..7',
             frameRate: 2
             },
@@ -28,11 +33,21 @@ export function getUnitSheet(unitTiles: HTMLImageElement): SpriteSheet {
             frames: '8..11',
             frameRate: 8
             },
-            zombieHurt: {
+            zH: {
             frames: '12..13',
             frameRate: 8
             },
-        }
+            zS1: {
+            frames: '10',
+            frameRate: 0,
+            loop: false
+            },
+            zS2: {
+            frames: '11',
+            frameRate: 0,
+            loop: false
+            },
+        }      
       });
 }
 
@@ -61,7 +76,7 @@ export function getTileSet(tileSize: number, groundTiles: HTMLImageElement, colo
         's': { background: colorMap.s },
         'r': { x: 1, y: 1 },
         'wv': { x: 0, y: 1 }, 
-        't': { x: 3, y: 0 },
+        't': { x: 4, y: 0 },
       });
 }
 

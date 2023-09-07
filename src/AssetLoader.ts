@@ -1,9 +1,9 @@
-import tiles from '/assets/tiles.png';
+import tiles from '/assets/t.png';
 
 export default function loadImageAssets(): Promise<HTMLImageElement[]>{
     return loadAsset(tiles).then((image) => {
         return Promise.all([
-            splitImage(image, 0, 0, 80, 32),
+            splitImage(image, 0, 0, 96, 32),
             splitImage(image, 0, 32, 240, 22),
         ]);
     });

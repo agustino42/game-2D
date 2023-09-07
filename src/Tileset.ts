@@ -30,8 +30,8 @@ export default class Tileset {
                     if(tileName === 't'){
                         let xr: number = 1;
                         let yr: number = 1;
-                           ctx.drawImage(this.tileSheet, 16 * 3, 19, this.tileSize * 2, 13, (x-xr) * this.tileSize + this.tileSize / 2, (y-yr) * this.tileSize + 19, this.tileSize * 2, 13);
-                        secondCtx?.drawImage(this.tileSheet, 16 * 3, 0, 32, 19, (x-xr) * this.tileSize + this.tileSize / 2, (y-yr) * this.tileSize, 32, 19);
+                           ctx.drawImage(this.tileSheet, 16 * 4, 19, this.tileSize * 2, 13, (x-xr) * this.tileSize + this.tileSize / 2, (y-yr) * this.tileSize + 19, this.tileSize * 2, 13);
+                        secondCtx?.drawImage(this.tileSheet, 16 * 4, 0, 32, 19, (x-xr) * this.tileSize + this.tileSize / 2, (y-yr) * this.tileSize, 32, 19);
                     } else
                         ctx.drawImage(this.tileSheet, sx, sy, this.tileSize, this.tileSize, x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
                 }

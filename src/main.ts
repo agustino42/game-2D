@@ -1,7 +1,7 @@
-import { init, GameLoop, Sprite } from 'kontra';
+import { init, GameLoop, Sprite, SpriteSheet } from 'kontra';
 import loadImageAssets from './AssetLoader';
 import Tilemap from './Tilemap';
-import {getPlayer} from './SpriteFactory';
+import {getPlayer, getTree, getZombie} from './SpriteFactory';
 import {handleInput, isActionKeyPressed, isSpacePressed} from './InputHandler';
 import { getFilteredObstacles, getFilteredSprites } from './ObastacleHandler';
 import spawnZombie from './ZombieSpawner';
@@ -56,13 +56,27 @@ async function main() {
   const aoe: Sprite[] = [];
   
   const tilemap = await generateMap(8,0.5, tilemapWidth, tilemapHeight, tileset)
+  const splashZombies = [getZombie(0, 0, player, canvas, 0, unitSheet.animations),getZombie(0, 0, player, canvas, 0, unitSheet.animations)];
+  const treeSheet = SpriteSheet({
+    image: groundTiles,
+    frameWidth: 32,
+    frameHeight: 32,
+    animations: {
+      splash: {
+        frames: '2',
+        frameRate: 0,
+        loop: false
+      }
+    }
+  })
+
   
   textCanvas.width = canvas.offsetWidth;
-  const gameState = new GameState(180, player, textCanvas, textCanvas.width/canvas.width);
+  const gameState = new GameState(180, player, textCanvas, textCanvas.width/canvas.width, splashZombies, [getTree(treeSheet['animations']), getTree(treeSheet['animations'])]);
 
   window.addEventListener('resize', () => {
     textCanvas.width = canvas.offsetWidth;
-    gameState.scale = textCanvas.width/canvas.width;
+    gameState.sc = textCanvas.width/canvas.width;
     gameState.reloadUI();
   });
   gameState.setState(0);
@@ -80,16 +94,16 @@ async function main() {
   
   let loop = GameLoop({  // create the main game loop
     update: function(dt) { // update the game state
-      if(gameState.state === 0 || gameState.state === 2 || gameState.state === 3){
+      if(gameState.s === 0 || gameState.s === 2 || gameState.s === 3){
         if(isSpacePressed()){
           gameState.setState(1);
         }
-      } else if(gameState.state === 1){
+      } else if(gameState.s === 1){
 
         const screenObstacles = getFilteredObstacles(tilemap.obstacles, player.getScreenBounds(), TILE_SIZE);
         const screenTrees = getFilteredSprites(tilemap.trees, player.getScreenBounds());
         zombieTimer += dt;
-        if(zombieTimer >= 4 * (1 - gameState.timePassed / gameState.levelTime) + 1){
+        if(zombieTimer >= 4 * (1 - gameState.tp / gameState.lt) + 1){
           zombies.push(spawnZombie(player, canvas, TILE_SIZE * 2, screenObstacles, unitSheet.animations));
           zombieTimer = 0;
         }
@@ -221,7 +235,7 @@ async function main() {
       gameState.update(dt);
     },
     render: function() { // render the game state
-      if(gameState.state === 1){
+      if(gameState.s === 1){
         worldMap.drawImage();
         aoeTargets.forEach((target) => {
           target.render();
