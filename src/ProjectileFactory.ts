@@ -129,7 +129,7 @@ function getAoe(position: Position, canvas: HTMLCanvasElement, player: Sprite): 
         gx: position.x,
         gy: position.y,
         radius: 40,
-        color: colorMap.uY + '77',
+        color: colorMap.uP + '77',
         render(this: Sprite) {
             this.context.fillStyle = this.color;
             this.context.beginPath();
@@ -178,7 +178,7 @@ function getVCBExp(position: Position, canvas: HTMLCanvasElement, player: Sprite
                 gy: position.y,
                 duration: 0.5,  
                 radius: 5,
-                color: colorMap.uY,
+                color: colorMap.uP,
                 render(this: Sprite) {
                     this.context.fillStyle = this.color;
                     this.context.beginPath();
@@ -206,7 +206,7 @@ export function getVCBomb(position: Position, canvas: HTMLCanvasElement, player:
 
 export function getTurmericCursor(position: Position, canvas: HTMLCanvasElement, player: Sprite): Sprite {
     const sprite = getAoe(position, canvas, player);
-    sprite.color = colorMap.uP + '55';
+    sprite.color = colorMap.uY + '55';
     sprite.radius = 40;
     sprite.explode = function(this: Sprite, zombies: Sprite[]): Sprite[]{
         tC();
@@ -225,8 +225,8 @@ function getTumericCloud(position: Position, canvas: HTMLCanvasElement, player: 
                 gy: position.y,
                 duration: 10,  
                 radius: 40,
-                color: colorMap.uP + '44',
-                lighterColor: colorMap.uP + '99',
+                color: colorMap.uY + '44',
+                lighterColor: colorMap.uY + '99',
                 grow: true,
                 bubbles: [],
                 player: player,

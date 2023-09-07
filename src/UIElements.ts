@@ -70,7 +70,7 @@ export function getUI(gameState: GameState): Sprite {
 
     drawVitamineCBombIcon(this: Sprite, x: number, y: number) {
       // its like a T but with a second line 1 third from the bottom
-      this.context.fillStyle = colorMap.uY;
+      this.context.fillStyle = colorMap.uP;
       this.context.fillRect(x - 1, y - 3, 2, 6);
       this.context.fillRect(x - 3, y - 3, 6, 2);
       this.context.fillRect(x - 2, y - 1, 4, 1);
@@ -78,7 +78,7 @@ export function getUI(gameState: GameState): Sprite {
 
     drawLavenderCloudIcon(this: Sprite, x: number, y: number) {
       // its a purple cloud, colorMap.uiPurple
-      this.context.fillStyle = colorMap.uP;
+      this.context.fillStyle = colorMap.uY;
       this.context.beginPath();
       this.context.arc(x, y, 2, 0, 2 * Math.PI);
       this.context.fill();
