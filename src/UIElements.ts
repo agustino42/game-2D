@@ -105,7 +105,7 @@ export function getUI(gameState: GameState): Sprite {
     drawCooldownText(this: Sprite, x: number, y: number, cooldown: number) {
       //colormap.uiWhite, text that goes over the icon
       this.tC.fillStyle = colorMap.uW;
-      this.tC.font = `bold ${8 * this.s}px Impact`;
+      this.tC.font = `${8 * this.s}px Impact`;
       this.tC.textAlign = "center";
       this.tC.textBaseline = "middle";
       this.tC.fillText(`${Math.ceil(this.p.cooldowns[cooldown])}`, x * this.s, y * this.s);
@@ -113,7 +113,7 @@ export function getUI(gameState: GameState): Sprite {
 
     drawTimerText(this: Sprite, x: number, y: number) {
       this.tC.fillStyle = colorMap.uW;
-      this.tC.font = `bold ${8 * this.s}px Impact`;
+      this.tC.font = `${8 * this.s}px Impact`;
       this.tC.textAlign = "center";
       this.tC.textBaseline = "middle";
       this.tC.fillText(`${this.gameState.getTimerText()}`, x, y * this.s);
@@ -121,7 +121,7 @@ export function getUI(gameState: GameState): Sprite {
 
     drawScoreText(this: Sprite, x: number, y: number) {
       this.tC.fillStyle = colorMap.uW;
-      this.tC.font = `bold ${8 * this.s}px Impact`;
+      this.tC.font = `${8 * this.s}px Impact`;
       this.tC.textAlign = "center";
       this.tC.textBaseline = "middle";
       this.tC.fillText(`${this.gameState.getScoreText()}`, x * this.s, y * this.s);
@@ -162,11 +162,11 @@ export function getStartScreen(gameState: GameState): Sprite {
       this.context.fillStyle = "#000";
       this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
       this.tC.fillStyle = colorMap.uW;
-      this.tC.font = `bold ${20 * this.s}px Impact`;
+      this.tC.font = `${20 * this.s}px Impact`;
       this.tC.textAlign = "center";
       this.tC.textBaseline = "middle";
       this.tC.fillText("To Health With You!", this.canvas.width / 2, this.canvas.height / 4);
-      this.tC.font = `bold ${8 * this.s}px Impact`;
+      this.tC.font = `${8 * this.s}px Impact`;
       this.tC.fillText("Press space to start", this.canvas.width / 2, this.canvas.height / 2.7);
       gameState.trees[0].render();
       gameState.trees[1].render();
@@ -191,12 +191,12 @@ export function getGameOverScreen(gameState: GameState): Sprite {
       this.tC.fillStyle = "#000";
       this.tC.fillRect(0, 0, this.canvas.width, this.canvas.height);
       this.tC.fillStyle = colorMap.uW;
-      this.tC.font = `bold ${15 * this.scale}px Impact`;
+      this.tC.font = `${15 * this.scale}px Impact`;
       this.tC.textAlign = "center";
       this.tC.textBaseline = "middle";
       this.tC.fillText("Game Over!", this.canvas.width / 2, this.canvas.height / 3);
-      this.tC.font = `bold ${10 * this.scale}px Impact`;
-      this.tC.fillText(`Your ${gameState.getScoreText()}`, this.canvas.width / 2, this.canvas.height / 2.2);
+      this.tC.font = `${10 * this.scale}px Impact`;
+      this.tC.fillText(`Your score: ${gameState.p.score}`, this.canvas.width / 2, this.canvas.height / 2.2);
       this.tC.fillText("Press space to try again", this.canvas.width / 2, this.canvas.height / 1.8);
     }
   });
@@ -214,11 +214,11 @@ export function getEndScreen(gameState: GameState): Sprite {
       this.tC.fillStyle = "#000";
       this.tC.fillRect(0, 0, this.canvas.width, this.canvas.height);
       this.tC.fillStyle = colorMap.uW;
-      this.tC.font = `bold ${15 * this.s}px Impact`;
+      this.tC.font = `${15 * this.s}px Impact`;
       this.tC.textAlign = "center";
       this.tC.textBaseline = "middle";
       this.tC.fillText("Congratulations! You made it!", this.canvas.width / 2, this.canvas.height / 3);
-      this.tC.font = `bold ${10 * this.s}px Impact`;
+      this.tC.font = `${10 * this.s}px Impact`;
       this.tC.fillText(`Your score: ${this.p.score}`, this.canvas.width / 2, this.canvas.height / 2.2);
       this.tC.fillText("Press space to play again", this.canvas.width / 2, this.canvas.height / 1.8);
     }
