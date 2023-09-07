@@ -225,6 +225,8 @@ async function main() {
         });
         if(player.health <= 0){
           gameState.setState(2);
+          aoeTargets.splice(0,1);
+          zombieTimer = 0;
           zombies.forEach((zombie) => {
             zombie.health = 0;
           });
