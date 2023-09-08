@@ -95,7 +95,7 @@ async function main() {
   let loop = GameLoop({  // create the main game loop
     update: function(dt) { // update the game state
       if(gameState.s === 0 || gameState.s === 2 || gameState.s === 3){
-        if(isSpacePressed()){
+        if(isSpacePressed() && player.cooldowns[3] === 0){
           gameState.setState(1);
         }
       } else if(gameState.s === 1){
@@ -196,7 +196,7 @@ async function main() {
         player.update(dt);
         player.moveUnit(dt);
         player.setAnimation();
-        player.updateCooldowns(dt);
+        
         let zombiesKilled: number = 0;
   
         zombies.forEach((zombie, index) => {
@@ -224,16 +224,17 @@ async function main() {
           zombie.speed = zombie.normalSpeed;
         });
         if(player.health <= 0){
-          gameState.setState(2);
           aoeTargets.splice(0,1);
           zombieTimer = 0;
           zombies.forEach((zombie) => {
             zombie.health = 0;
           });
+          gameState.setState(2);
         }
         player.score += zombiesKilled * 10 * (1 + zombiesKilled * 0.5);
         player.reset();
       }
+      player.updateCooldowns(dt);
       gameState.update(dt);
     },
     render: function() { // render the game state
@@ -261,6 +262,7 @@ async function main() {
         
         treeTops.drawImage();
       }
+      
       gameState.renderUI();
     }
   });
