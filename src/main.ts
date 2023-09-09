@@ -72,7 +72,7 @@ async function main() {
 
   
   textCanvas.width = canvas.offsetWidth;
-  const gameState = new GameState(300, player, textCanvas, textCanvas.width/canvas.width, splashZombies, [getTree(treeSheet['animations']), getTree(treeSheet['animations'])]);
+  const gameState = new GameState(180, player, textCanvas, textCanvas.width/canvas.width, splashZombies, [getTree(treeSheet['animations']), getTree(treeSheet['animations'])]);
 
   window.addEventListener('resize', () => {
     textCanvas.width = canvas.offsetWidth;
