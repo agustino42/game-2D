@@ -72,7 +72,7 @@ async function main() {
 
   
   textCanvas.width = canvas.offsetWidth;
-  const gameState = new GameState(180, player, textCanvas, textCanvas.width/canvas.width, splashZombies, [getTree(treeSheet['animations']), getTree(treeSheet['animations'])]);
+  const gameState = new GameState(300, player, textCanvas, textCanvas.width/canvas.width, splashZombies, [getTree(treeSheet['animations']), getTree(treeSheet['animations'])]);
 
   window.addEventListener('resize', () => {
     textCanvas.width = canvas.offsetWidth;
@@ -95,6 +95,10 @@ async function main() {
   let loop = GameLoop({  // create the main game loop
     update: function(dt) { // update the game state
       if(gameState.s === 0 || gameState.s === 2 || gameState.s === 3){
+        zombies.forEach((zombie) => {
+          zombie.health = 0;
+        });
+        aoeTargets.splice(0,1);
         if(isSpacePressed() && player.cooldowns[3] === 0){
           gameState.setState(1);
         }
