@@ -1,30 +1,28 @@
-# To Health With You!
-Entry for the js13kgames game jam
+# Corre para Sobrevivir!
 
-You play a 13th-century apothecary stranded on an island after a house call. A boat is coming in the morning; you just have to survive the night. 
-However, this night is swarming with the undead. Using the logic that what's healthy for the living must harm the undead, you fight them off with your medicines.
+Juego creado en 2D, Modalidad de movimiento del personaje, Coldown de Tiempo de juego por partida, Disparo contra Enemigos, Sprite
 
 ## How To Play
 
-At your disposal, you have:   
-- Ginger Shot as your main attack. Ranged, single-target with a 0.5-second cooldown. Your basic immune booster. Harms the undead.
-- Vitamin Bomb. Affects all targets in the area of the explosion. Loaded with all the goodness for a healthy life. Lethal to the undead.
-- Turmeric Cloud. A cloud that slows down the undead within the area. Normally used to cure bad joints, increasing mobility.
+A tu disposición tienes:
+- Ginger Shot como tu ataque principal. Objetivo único a distancia con un tiempo de reutilización de 0,5 segundos. Tu refuerzo inmunológico básico. Daña a los no-muertos.
+- Bomba de vitaminas. Afecta a todos los objetivos en el área de la explosión. Cargado de todas las bondades para una vida saludable. Letal para los no-muertos.
+- Nube de cúrcuma. Una nube que ralentiza a los no-muertos dentro del área. Normalmente se utiliza para curar malas articulaciones, aumentando la movilidad.
 
-Movement is done with W, S, A, D. Cooldowns are visible in the upper part of the screen, to the right of the health bar.
-- Shoot Ginger Shot with your left mouse button.
-- Target Vitamin-C Bomb with space. Left-click at the desired location.
-- Target Turmeric Cloud with 'e' or 'q'. Left-click at the desired location.
+El movimiento se realiza con W, S, A, D. Los tiempos de reutilización son visibles en la parte superior de la pantalla, a la derecha de la barra de salud.
+- Dispara Ginger Shot con el botón izquierdo del ratón.
+- Apunta a la bomba de vitamina C con el espacio. Haga clic izquierdo en la ubicación deseada.
+- Apunte a la nube de cúrcuma con 'e' o 'q'. Haga clic izquierdo en la ubicación deseada.
 
-You get a score multiplier for killing several zombies in one shot, and if you survive to the end, you get a bonus as well.
+Obtienes un multiplicador de puntuación por matar a varios zombies de un solo disparo, y si sobrevives hasta el final, también obtienes una bonificación.
 
 ## Technologies
 
-- I used [pixeldudesmaker](https://0x72.itch.io/pixeldudesmaker) to make the charcter sprites
-- [zzfx](https://github.com/KilledByAPixel/ZzFX) for sounds
-- [Kontra.js](https://github.com/straker/kontra) is also used.
+-eh usado [pixeldudesmaker](https://0x72.itch.io/pixeldudesmaker) to make the charcter sprites
+- [zzfx](https://github.com/KilledByAPixel/ZzFX) para los Sonidos
+- [Kontra.js](https://github.com/straker/kontra) para los movimientos
 
-## Installation
+## Instalacion
 
 1. Clone the repo or download the game from the releases.
 2. Run `npm install` to get all dependencies.
