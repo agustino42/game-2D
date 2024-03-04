@@ -143,7 +143,7 @@ function getAoe(position: Position, canvas: HTMLCanvasElement, player: Sprite): 
             this.advance();
         },
         setPos(this: Sprite, position: Position){
-            //calculate the global position based on position and player position
+            //calcular la posicion globar de la base o la posicion del jugador
             this.gx = position.x + player.gx - canvas.width / 2;
             this.gy = position.y + player.gy - canvas.height / 2;
         },

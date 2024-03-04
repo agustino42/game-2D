@@ -92,8 +92,8 @@ async function main() {
 
   let zombieTimer = 0;
   
-  let loop = GameLoop({  // create the main game loop
-    update: function(dt) { // update the game state
+  let loop = GameLoop({  // crear el  main game loop
+    update: function(dt) { // actualizar the game state
       if(gameState.s === 0 || gameState.s === 2 || gameState.s === 3){
         zombies.forEach((zombie) => {
           zombie.health = 0;
@@ -272,7 +272,7 @@ async function main() {
   });
 
   loop.start(); 
-     // start the game
+     // Empezar el Juego
   function getMousePosition(): Position {
     return mousePosition;
   }

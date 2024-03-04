@@ -7,7 +7,7 @@ document.addEventListener('keydown', (event) => {
   pressedKeys[event.key] = true;
 });
 
-// Lyssna på keyup
+// funciones de la logica
 document.addEventListener('keyup', (event) => {
   pressedKeys[event.key] = false;
 });

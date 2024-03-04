@@ -47,12 +47,12 @@ export default class Tilemap {
                 this.mapGrid[y] = [];
                 for (let x = 0; x < numberOfTilesX; x++) {
                     let perlinValue = (perlin(x * SCALE, y * SCALE, perm) + 1) / 2;
-                    // Calculate distance to center of map
+                    // calcular la distancia del centro del mapa 
                     const dx = x - numberOfTilesX / 2;
                     const dy = y - numberOfTilesY / 2;
                     const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
 
-                    // Adjust Perlin value based on distance to center
+                    // adjustar el personaje con el valor de la base de distancia del centro 
                     const maxDistance = Math.sqrt(Math.pow(numberOfTilesX / 2, 2) + Math.pow(numberOfTilesY / 2, 2));
                     const islandFactor = distanceToCenter / maxDistance;
                     perlinValue = perlinValue - (islandFactor * islandFactorConstant);

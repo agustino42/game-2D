@@ -165,9 +165,9 @@ export function getStartScreen(gameState: GameState): Sprite {
       this.tC.font = `${20 * this.s}px Impact`;
       this.tC.textAlign = "center";
       this.tC.textBaseline = "middle";
-      this.tC.fillText("To Health With You!", this.canvas.width / 2, this.canvas.height / 4);
+      this.tC.fillText("Corre por Tu Vida, Lucha por Vivir", this.canvas.width / 2, this.canvas.height / 4);
       this.tC.font = `${8 * this.s}px Impact`;
-      this.tC.fillText("Press space to start", this.canvas.width / 2, this.canvas.height / 2.7);
+      this.tC.fillText("Presiona Space Para Continuar", this.canvas.width / 2, this.canvas.height / 2.7);
       gameState.trees[0].render();
       gameState.trees[1].render();
       gameState.zombies[0].render();
@@ -194,10 +194,10 @@ export function getGameOverScreen(gameState: GameState): Sprite {
       this.tC.font = `${15 * this.scale}px Impact`;
       this.tC.textAlign = "center";
       this.tC.textBaseline = "middle";
-      this.tC.fillText("Game Over!", this.canvas.width / 2, this.canvas.height / 3);
+      this.tC.fillText("Juego Terminado.. Has Perdido!", this.canvas.width / 2, this.canvas.height / 3);
       this.tC.font = `${10 * this.scale}px Impact`;
-      this.tC.fillText(`Your score: ${gameState.p.score}`, this.canvas.width / 2, this.canvas.height / 2.2);
-      this.tC.fillText("Press space to try again", this.canvas.width / 2, this.canvas.height / 1.8);
+      this.tC.fillText(`Tus Puntos: ${gameState.p.score}`, this.canvas.width / 2, this.canvas.height / 2.2);
+      this.tC.fillText("Presiona Space para Continuar", this.canvas.width / 2, this.canvas.height / 1.8);
     }
   });
 }
@@ -217,10 +217,10 @@ export function getEndScreen(gameState: GameState): Sprite {
       this.tC.font = `${15 * this.s}px Impact`;
       this.tC.textAlign = "center";
       this.tC.textBaseline = "middle";
-      this.tC.fillText("Congratulations! You made it!", this.canvas.width / 2, this.canvas.height / 3);
+      this.tC.fillText("Felicitaciones Has Ganado ", this.canvas.width / 2, this.canvas.height / 3);
       this.tC.font = `${10 * this.s}px Impact`;
-      this.tC.fillText(`Your score: ${this.p.score}`, this.canvas.width / 2, this.canvas.height / 2.2);
-      this.tC.fillText("Press space to play again", this.canvas.width / 2, this.canvas.height / 1.8);
+      this.tC.fillText(`Tus Puntos: ${this.p.score}`, this.canvas.width / 2, this.canvas.height / 2.2);
+      this.tC.fillText("Presiona space para Continuar", this.canvas.width / 2, this.canvas.height / 1.8);
     }
   });
 }
