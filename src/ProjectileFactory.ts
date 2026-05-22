@@ -4,6 +4,9 @@ import { circleToCircleCollision, spriteToCircle } from './Utils';
 import { colorMap } from './Presets';
 import { vCB, tC } from './Sounds';
 
+//Exportar o llamar la Funcion para los Disparos
+
+
 export function getGingerShot(position: Position, direction: Position, canvas: HTMLCanvasElement, player: Sprite): Sprite{
     return Sprite({
         x:0,
@@ -85,6 +88,8 @@ export function getGingerShot(position: Position, direction: Position, canvas: H
 
     });
 }
+ 
+//Segunda Fase Impactos de los Disparoos 
 
 export function getGingerShotHit(position: Position, direction: Position, canvas: HTMLCanvasElement, player: Sprite): Sprite {
     return Sprite({
@@ -116,6 +121,8 @@ export function getGingerShotHit(position: Position, direction: Position, canvas
         },
     });
 }
+
+//Segunda Fase del impacto de los disparos HIT
 
 export function getGingerShotHits(position: Position, canvas: HTMLCanvasElement, player: Sprite): Sprite[] {
     const directions = [{x: 1, y: 1}, {x: -1, y: 1}, {x: 1, y: -1}, {x: -1, y: -1}];
@@ -167,6 +174,8 @@ function getAoe(position: Position, canvas: HTMLCanvasElement, player: Sprite): 
     });    
 }
 
+// Tercera Fase . Reward de los impactos de Balas
+
 function getVCBExp(position: Position, canvas: HTMLCanvasElement, player: Sprite): Sprite[] {
     const sprites: Sprite[] = [];
     for(let i=0; i<20; i++){
@@ -200,6 +209,10 @@ function getVCBExp(position: Position, canvas: HTMLCanvasElement, player: Sprite
     return sprites;
 }
 
+
+ // Cuarta Fase .. Combos Especiales, Bombas, 
+
+
 export function getVCBomb(position: Position, canvas: HTMLCanvasElement, player: Sprite): Sprite {
     return getAoe(position, canvas, player);
 }
@@ -214,6 +227,7 @@ export function getTurmericCursor(position: Position, canvas: HTMLCanvasElement,
     };
     return sprite;
 }
+
 
 function getTumericCloud(position: Position, canvas: HTMLCanvasElement, player: Sprite, zombies: Sprite[]): Sprite[]{
     const sprites: Sprite[] = [];
@@ -265,7 +279,7 @@ function getTumericCloud(position: Position, canvas: HTMLCanvasElement, player: 
                         bubble.color = this.lighterColor;
                     });
                     zombies.forEach((zombie) => {
-                        //if the zombie is within the cloud redue speed by 75%
+                        // si la Velocidad del ZOmbie is congelado se reduce la velocidad en un 75% 
                         if(circleToCircleCollision(spriteToCircle(zombie), spriteToCircle(this))){
                             zombie.speed = zombie.normalSpeed * 0.25;
                         } 

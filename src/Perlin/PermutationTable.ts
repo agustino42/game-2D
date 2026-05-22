@@ -1,10 +1,10 @@
 export default function generatePermTable(seed: number) {
     const rng = SeedableRandom(seed);
 
-    // Create an array from 0 to 255
+    // Crear un  array desde  0 a 255
     const perm = Array.from({ length: 256 }, (_, index) => index);
 
-    // Shuffle the perm array using Fisher-Yates (Durstenfeld) algorithm
+    //  Algoritmo del Shuffle para determinar el array ojo Shuffle the perm array using Fisher-Yates (Durstenfeld) algorithm
     for (let i = perm.length - 1; i > 0; i--) {
         const j = Math.floor(rng.next() * (i + 1));
         [perm[i], perm[j]] = [perm[j], perm[i]];

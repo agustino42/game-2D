@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Survival 2D - Rankings</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- HERO SECTION CON NICKNAME -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">🚀 SPACE SURVIVAL 2D</h1>
+            <p class="hero-subtitle">Supervive a hordas de zombies espaciales y compite en el ranking global</p>
+            
+            <div class="nickname-input">
+                <input type="text" id="nickname" 
+                       placeholder="Tu nickname (ej: GalacticWarrior)" 
+                       maxlength="20"
+                       autocomplete="off">
+                <button class="start-btn" onclick="startGame()">🎮 EMPEZAR JUEGO</button>
+            </div>
+            
+            <div class="recent-players">
+                <p>👥 Últimos jugadores: <span id="recent-players-list">SpaceHunter, ZombieSlayer, CosmicPilot</span></p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- RANKINGS SECTION -->
+    <section class="rankings">
+        <div class="rankings-content">
+            <h2 class="rankings-title">🏆 TOP 10 GLOBAL</h2>
+            <div class="ranking-filters">
+                <button class="filter-btn active" onclick="filterRanking('all')">Todos los tiempos</button>
+                <button class="filter-btn" onclick="filterRanking('today')">Hoy</button>
+                <button class="filter-btn" onclick="filterRanking('week')">Esta semana</button>
+            </div>
+            <div class="ranking-container">
+                <table id="ranking-table">
+                    <thead>
+                        <tr>
+                            <th class="rank-header rank">#</th>
+                            <th class="rank-header player">Jugador</th>
+                            <th class="rank-header score">Puntuación</th>
+                            <th class="rank-header date">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-body">
+                        <!-- Se llena con JavaScript -->
+                        <tr class="loading-row">
+                            <td colspan="4">Cargando rankings...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+    <!-- STATS SECTION -->
+    <section class="stats">
+        <div class="stats-content">
+            <h2 class="stats-title">📊 ESTADÍSTICAS EN TIEMPO REAL</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🧟</div>
+                    <div class="stat-value" id="total-zombies">1,234,567</div>
+                    <div class="stat-label">Zombies Eliminados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👑</div>
+                    <div class="stat-value" id="top-score">25,000</div>
+                    <div class="stat-label">Mejor Puntuación</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="players-today">856</div>
+                    <div class="stat-label">Jugadores Hoy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-value" id="avg-score">12,500</div>
+                    <div class="stat-label">Promedio Puntuación</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ABOUT SECTION -->
+    <section class="about">
+        <div class="about-content">
+            <h2 class="about-title">🎮 SOBRE EL PROYECTO</h2>
+            <div class="about-text">
+                <p>Space Survival 2D es un juego de supervivencia espacial donde debes enfrentar hordas interminables de zombies espaciales. Con gráficos estilo arcade y mecánicas clásicas, este juego pone a prueba tus reflejos y estrategia.</p>
+                <p>Desarrollado con tecnologías web modernas, el juego cuenta con un sistema de rankings global donde puedes competir con jugadores de todo el mundo y subir en la tabla de posiciones.</p>
+            </div>
+            <div class="tech-stack">
+                <h3>Tecnologías utilizadas:</h3>
+                <div class="tech-icons">
+                    <span class="tech-item">TypeScript</span>
+                    <span class="tech-item">HTML5 Canvas</span>
+                    <span class="tech-item">Python</span>
+                    <span class="tech-item">SQLite</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-text">© 2024 Space Survival 2D - Desarrollado con pasión para la comunidad de gamers</p>
+            <div class="footer-links">
+                <a href="#" onclick="alert('GitHub: github.com/tu-usuario')">GitHub</a>
+                <a href="#" onclick="alert('Twitter: @spacesurvival2d')">Twitter</a>
+                <a href="#" onclick="alert('Discord: discord.gg/spacesurvival')">Discord</a>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>

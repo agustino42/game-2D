@@ -1,6 +1,8 @@
 import { Sprite } from "kontra";
 import { getGameOverScreen, getStartScreen, getEndScreen, getUI } from "./UIElements";
 
+//Fase 1 Todos las Variables del juego 
+
 export class GameState {
     lt: number;
     tp: number;

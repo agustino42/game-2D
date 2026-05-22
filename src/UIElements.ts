@@ -1,6 +1,6 @@
 import { Sprite } from "kontra";
 import { colorMap } from "./Presets";
-import { GameState } from "./GameState";
+import { GameState } from "./EstadoJuego";
 
 export function getUI(gameState: GameState): Sprite {
   return Sprite({

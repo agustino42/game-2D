@@ -1,5 +1,5 @@
 import { init, GameLoop, Sprite, SpriteSheet } from 'kontra';
-import loadImageAssets from './AssetLoader';
+import loadImageAssets from './ImagenCarga';
 import Tilemap from './Tilemap';
 import {getPlayer, getTree, getZombie} from './SpriteFactory';
 import {handleInput, isActionKeyPressed, isSpacePressed} from './InputHandler';
@@ -11,10 +11,106 @@ import { getGingerShot, getGingerShotHits, getTurmericCursor, getVCBomb } from '
 import { getNormalizedVector } from './Utils';
 import { colorMap, getTileSet, getUnitSheet } from './Presets';
 import generateMap from './MapGenerator';
-import { GameState } from './GameState';
+import { GameState } from './EstadoJuego';
 import { playGingerShotSound } from './Sounds';
 //@ts-ignore
 // import { playMusic } from './Music';
+
+// ===== NICKNAME & BACKEND FUNCTIONS =====
+// Obtener nickname del localStorage (se guarda desde la landing page)
+const nickname = localStorage.getItem('space_survival_nickname') || 'Anónimo';
+
+// Función para guardar puntuación en el backend
+async function saveScoreToBackend(score: number, zombiesKilled: number, gameDuration: number) {
+    try {
+        const response = await fetch('http://localhost:8000/api/scores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                player: nickname,
+                score: Math.floor(score),
+                game_duration: Math.floor(gameDuration),
+                zombies_killed: zombiesKilled
+            })
+        });
+        
+        if (response.ok) {
+            console.log('✅ Puntuación guardada en el ranking!');
+        }
+    } catch (error) {
+        console.warn('⚠️ No se pudo guardar la puntuación (backend no disponible):', error);
+        // El juego sigue funcionando aunque el backend no esté disponible
+    }
+}
+
+// Función para mostrar modal de puntuación final
+function showGameOverModal(score: number, zombiesKilled: number) {
+    // Guardar en localStorage para referencia
+    localStorage.setItem('last_score', score.toString());
+    localStorage.setItem('last_zombies', zombiesKilled.toString());
+    
+    // Mostrar modal simple
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        padding: 40px;
+        border-radius: 20px;
+        border: 3px solid #00ff88;
+        text-align: center;
+        z-index: 1000;
+        min-width: 300px;
+    `;
+    
+    modal.innerHTML = `
+        <h2 style="color: #ff0055; font-size: 2em; margin-bottom: 20px;">💀 GAME OVER</h2>
+        <p style="color: white; font-size: 1.2em; margin-bottom: 10px;">Nickname: ${nickname}</p>
+        <p style="color: #00ff88; font-size: 1.5em; font-weight: bold; margin-bottom: 20px;">🏆 Puntuación: ${Math.floor(score).toLocaleString()}</p>
+        <p style="color: #a0a0a0; margin-bottom: 30px;">Zombies eliminados: ${zombiesKilled}</p>
+        <button id="save-score-btn" style="
+            padding: 15px 30px;
+            background: #00ff88;
+            color: #0f0c29;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        ">💾 GUARDAR EN RANKING</button>
+        <button id="close-btn" style="
+            padding: 15px 30px;
+            background: #ff0055;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        ">❌ CERRAR</button>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Event listeners
+    document.getElementById('save-score-btn').onclick = async () => {
+        const gameDuration = 180; // Duración del juego en segundos
+        await saveScoreToBackend(score, zombiesKilled, gameDuration);
+        alert('✅ ¡Puntuación guardada en el ranking global!');
+        document.body.removeChild(modal);
+    };
+    
+    document.getElementById('close-btn').onclick = () => {
+        document.body.removeChild(modal);
+    };
+}
+
+
+//Pagina Principal del juego
 
 async function main() {
   const [groundTiles, unitTiles] = await loadImageAssets();
@@ -25,7 +121,7 @@ async function main() {
   const tileset = getTileSet(TILE_SIZE, groundTiles, colorMap);
   
   
-  //initializing kontra
+  //iniciar el juego corre por tu vida inicio fase 1 
   const mouseButtonPressed: { [key: string]: boolean } = {};
   const mousePosition: Position = {x: 0, y: 0};
   
@@ -46,8 +142,8 @@ async function main() {
   });
   const tilemapWidth = canvas.width * 8;
   const tilemapHeight = canvas.height * 11;
-  //initializing map
-  //initializing player
+  //inicio del el mapa 
+  //inicio del jugador o player
   const player = getPlayer(tilemapWidth / 2, tilemapHeight /2, canvas, unitSheet.animations);
   const zombies: Sprite[] = [];
   const projectiles: Sprite[] = [];
@@ -80,11 +176,11 @@ async function main() {
     gameState.reloadUI();
   });
   gameState.setState(0);
-  // playMusic();
+  // reproducir musica();
   
   
   
-  //setting up background
+  //configuracion del mapa
   const worldMap = getWorldMap(tilemap, player, canvas);
   const treeTops = getTreeTops(tilemap, player, canvas);
   
@@ -92,8 +188,10 @@ async function main() {
 
   let zombieTimer = 0;
   
-  let loop = GameLoop({  // crear el  main game loop
-    update: function(dt) { // actualizar the game state
+  let loop = GameLoop({  // crear el Inicio del juego el ciclo loop
+    update: function(dt) { // actualizar el juego
+
+    //entidades de ataque
       if(gameState.s === 0 || gameState.s === 2 || gameState.s === 3){
         zombies.forEach((zombie) => {
           zombie.health = 0;
@@ -112,7 +210,7 @@ async function main() {
           zombieTimer = 0;
         }
   
-        
+        // input del jugador Disparos y Movilidad 
         handleInput(player);
         if(isActionKeyPressed()){
           const inputMap = getActionKeyPressed();
@@ -177,7 +275,7 @@ async function main() {
             projectilesHits.push(...getGingerShotHits(projectile.getPosition(), canvas, player)); 
           }
         });
-
+        //Daño AOE del Jugador 
         aoeTargets.forEach((target) => {
           target.setPos(getMousePosition());
           target.update(dt);
@@ -192,7 +290,7 @@ async function main() {
         });
 
         
-
+  //Seccion 2 efectos del jugador 
 
         player.setBoundingObstacles(getFilteredObstacles(tilemap.obstacles, player.getExtendedBounds(TILE_SIZE), TILE_SIZE));
         
@@ -234,6 +332,9 @@ async function main() {
             zombie.health = 0;
           });
           gameState.setState(2);
+          
+          // ===== GUARDAR PUNTUACIÓN AL TERMINAR =====
+          showGameOverModal(player.score, zombiesKilled);
         }
         player.score += zombiesKilled * 10 * (1 + zombiesKilled * 0.5);
         player.reset();

@@ -1,35 +1,117 @@
 # Corre para Sobrevivir!
 
-Juego creado en 2D, Modalidad de movimiento del personaje, Coldown de Tiempo de juego por partida, Disparo contra Enemigos, Sprite
+**Corre por tu vida en un juego 2D de zombies con habilidades especiales, disparos y gestión de recursos.**
 
-## How To Play
+Este proyecto es una aplicación de juego creada con TypeScript, Vite y la librería de sprites y animación Kontra.js. El objetivo es sobrevivir el mayor tiempo posible, derrotar oleadas de no-muertos y usar ataques con cooldown para dominar el campo de batalla.
 
-A tu disposición tienes:
-- Ginger Shot como tu ataque principal. Objetivo único a distancia con un tiempo de reutilización de 0,5 segundos. Tu refuerzo inmunológico básico. Daña a los no-muertos.
-- Bomba de vitaminas. Afecta a todos los objetivos en el área de la explosión. Cargado de todas las bondades para una vida saludable. Letal para los no-muertos.
-- Nube de cúrcuma. Una nube que ralentiza a los no-muertos dentro del área. Normalmente se utiliza para curar malas articulaciones, aumentando la movilidad.
+---
 
-El movimiento se realiza con W, S, A, D. Los tiempos de reutilización son visibles en la parte superior de la pantalla, a la derecha de la barra de salud.
-- Dispara Ginger Shot con el botón izquierdo del ratón.
-- Apunta a la bomba de vitamina C con el espacio. Haga clic izquierdo en la ubicación deseada.
-- Apunte a la nube de cúrcuma con 'e' o 'q'. Haga clic izquierdo en la ubicación deseada.
+## 🎮 Qué ofrece este juego
 
-Obtienes un multiplicador de puntuación por matar a varios zombies de un solo disparo, y si sobrevives hasta el final, también obtienes una bonificación.
+- Movimiento fluido en 2D usando `W`, `A`, `S`, `D`.
+- Disparo principal rápido: **Ginger Shot**.
+- Habilidad de área: **Bomba de vitaminas**.
+- Habilidad de control: **Nube de cúrcuma** para ralentizar enemigos.
+- Barra de salud, indicadores de cooldown y multiplicadores de puntuación.
+- Enemigos basados en zombies y una experiencia de supervivencia arcade.
 
-## Technologies
+---
 
--eh usado [pixeldudesmaker](https://0x72.itch.io/pixeldudesmaker) to make the charcter sprites
-- [zzfx](https://github.com/KilledByAPixel/ZzFX) para los Sonidos
-- [Kontra.js](https://github.com/straker/kontra) para los movimientos
+## 🕹️ Controles
 
-## Instalacion
+- `W`, `A`, `S`, `D`: mover al personaje.
+- Clic izquierdo: disparar **Ginger Shot**.
+- `Espacio`: lanzar una **Bomba de vitaminas**.
+- `E` o `Q`: lanzar una **Nube de cúrcuma**.
+- Usa el ratón para apuntar en pantalla.
 
-1. Clone the repo or download the game from the releases.
-2. Run `npm install` to get all dependencies.
-3. Run `npm run build` to bouild the game. Serve dist/index.html or run `npm run preview`
+> Los cooldowns se muestran en la UI superior derecha junto a la barra de salud.
 
+---
 
+## ✅ Cómo jugar
 
+1. Muévete para esquivar a los zombies.
+2. Usa **Ginger Shot** para eliminar enemigos a distancia.
+3. Aprovecha la **Bomba de vitaminas** para limpiar grupos.
+4. Lanza la **Nube de cúrcuma** para ralentizar a los enemigos y ganar tiempo.
+5. Busca combinaciones de impactos para obtener multiplicadores de puntuación.
 
+---
 
+## 🚀 Instalación y ejecución
+
+Desde la carpeta `game-2D`:
+
+```bash
+npm install
+npm run dev
+```
+
+Luego abre la dirección local que indica Vite.
+
+### Para compilar y generar el build
+
+```bash
+npm run build
+```
+
+### Para previsualizar el build generado
+
+```bash
+npm run preview
+```
+
+### Para crear un ZIP de producción
+
+```bash
+npm run build-zip
+```
+
+---
+
+## 📁 Estructura del proyecto
+
+- `game.html` / `index.html` — páginas de entrada del juego.
+- `src/` — código fuente en TypeScript.
+  - `main.ts` — punto de entrada principal.
+  - `EstadoJuego.ts` — lógica de estado del juego.
+  - `InputHandler.ts` / `InputEvents.ts` — gestión de controles y eventos.
+  - `MapGenerator.ts`, `ZombieSpawner.ts` — generación de nivel y enemigos.
+  - `SpriteFactory.ts`, `Tilemap.ts`, `Tileset.ts` — manejo de gráficos y tiles.
+  - `Sounds.ts`, `Music.js`, `zzfx.ts` — efectos de sonido y música.
+- `public/assets/` — recursos estáticos.
+- `landing/` — página de aterrizaje del juego.
+
+---
+
+## 🛠️ Tecnologías usadas
+
+- `TypeScript`
+- `Vite`
+- `Kontra.js`
+- `zzfx` para efectos de sonido
+- `google-closure-compiler`, `terser` y `bestzip` para build/minificación
+
+---
+
+## 💡 Recomendaciones
+
+- Juega con volumen para disfrutar los efectos de sonido.
+- Prueba combinar ataques para limpiar grupos de zombies.
+- Usa la nube de cúrcuma en zonas con muchos enemigos para controlar el flujo de la partida.
+
+---
+
+## 📌 Nota
+
+Este repositorio está configurado como `private` en `package.json`, lo que significa que está pensado para uso local y no para publicación en npm.
+
+---
+
+## ✨ Créditos
+
+- Sprites creados con [PixelDudesMaker](https://0x72.itch.io/pixeldudesmaker).
+- Sonidos generados con [ZzFX](https://github.com/KilledByAPixel/ZzFX).
+- Animaciones y lógica de juego construidas con [Kontra.js](https://github.com/straker/kontra).
 

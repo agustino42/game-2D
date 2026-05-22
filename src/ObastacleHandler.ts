@@ -9,7 +9,7 @@ export function getFilteredObstacles(obstacles: Position[], playerBounds: {left:
             top: obstacle.y,
             bottom: (obstacle.y + tileSize)
         };
-        // Check if the obstacle's bounding box overlaps with the player's extended bounding box.
+        // Chequiar los obstaculos .
         return checkBounds(playerBounds, obstacleBounds);
       });
 }

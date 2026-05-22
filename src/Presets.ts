@@ -2,6 +2,8 @@ import { SpriteSheet } from "kontra";
 import Tileset from "./Tileset";
 import { ColorMap } from "./Interfaces";
 
+// captura el movimiento del personaje cuando pulsan las teclas
+
 export function getUnitSheet(unitTiles: HTMLImageElement): SpriteSheet {
     return SpriteSheet({
         image: unitTiles,

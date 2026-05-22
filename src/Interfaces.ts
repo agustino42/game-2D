@@ -1,3 +1,5 @@
+//Todas las Interfaces del juego 
+
 export interface Point {
     x?: number;
     y?: number;

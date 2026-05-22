@@ -2,6 +2,8 @@ import { Sprite } from "kontra";
 import { keyPressed} from "./InputEvents";
 import { Position } from "./Interfaces";
 
+//Todos los Input del juego . logica para las teclas y diseño
+
 const TILE_SIZE = 16;
 
 export function handleInput(player: Sprite) {
